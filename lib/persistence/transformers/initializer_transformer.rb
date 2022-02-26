@@ -10,15 +10,15 @@ module Persistence
         @entity = entity
       end
 
-      def one(item)
-        entity.new(item)
+      def one(result)
+        entity.new(result)
       rescue ArgumentError
         msg = "#{self.class}: #{entity} doesn't expects attributes on .new"
         raise(Persistence::Errors::TransformerError, msg)
       end
 
-      def many(items, pagination)
-        transformed = items.map { |item| one(item) }
+      def many(results, pagination)
+        transformed = results.map { |result| one(result) }
 
         { items: transformed, _pagination: pagination }
       end

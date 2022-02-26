@@ -4,7 +4,7 @@ module Persistence
   # Abstract layer that hides implementation details related to the persistence
   # layer. It has 2 main responsibilities:
   #   - Querying the DB through the Engine
-  #   - Transform Engine's result to deliver it in the expected format
+  #   - Transform Engine's result to expecte format via the Tranformer
   #
   # Example
   #
@@ -44,7 +44,7 @@ module Persistence
     end
 
     def find(id)
-      item = engine.where({ id: id }).limit(1).perform
+      item = engine.select.where({ id: id }).limit(1).perform
       return unless item
 
       transformer.one(item)
@@ -113,7 +113,7 @@ module Persistence
     end
 
     def destroy(id)
-      item = engine.where({ id: id }).limit(1).perform
+      item = engine.select.where({ id: id }).limit(1).perform
 
       return unless item && engine.delete.where({ id: id }).perform
 

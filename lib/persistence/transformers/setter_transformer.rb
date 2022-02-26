@@ -11,9 +11,9 @@ module Persistence
         @entity = entity
       end
 
-      def one(item)
+      def one(result)
         entity.new.tap do |instance|
-          item.each do |key, value|
+          result.each do |key, value|
             accessor = "#{key}="
             instance.send(accessor, value)
           rescue NoMethodError
@@ -23,8 +23,8 @@ module Persistence
         end
       end
 
-      def many(items, pagination)
-        transformed = items.map { |item| one(item) }
+      def many(results, pagination)
+        transformed = results.map { |result| one(result) }
 
         { items: transformed, _pagination: pagination }
       end

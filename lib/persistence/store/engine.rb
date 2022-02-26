@@ -54,8 +54,8 @@ module Persistence
       end
 
       # Terminal method.
-      # When invoked, it materializes the Operation and delegates the execution
-      # to the driver.
+      # When invoked, it materializes the Operation into a Directive that can be
+      # understood and executed by the Driver.
       def perform
         validate_existing_operation!
         directive = operation.send(adapter_method)

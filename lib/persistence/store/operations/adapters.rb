@@ -6,15 +6,15 @@ module Persistence
       # Contains modules that should define ONLY 2 methods.
       #
       # #adapter_method
-      # Returns the concrete method that transforms the Operation into a
-      # Directive.
+      # Returns the name of the concrete method that transforms the Operation
+      # into a Directive. It is also used within Engine's ADAPTERS constant,to
+      # dynamically register adapters.
       #
       # #as_<adapter_name>
-      # The concrete method that transforms the Operation into a Directive.
-      #
-      # This methods are merely symbolic and the adapter itself is really
-      # intended to detect missing implementations on any Operation that
-      # includes them. Also, to dynamically register them at the Engine.
+      # The concrete method that transforms the Operation into a Directive. It
+      # is merely symbolic since its main purpose is to raise and exception
+      # whenever the Operation that includes the Adapter hasn't implemented this
+      # method.
       module Adapters
       end
     end

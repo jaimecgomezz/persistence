@@ -2,15 +2,15 @@
 
 module Persistence
   module Transformers
-    # Simple transformers that does nothing but deliver the Engine result with
+    # Simple transformer that does nothing but deliver the Engine result with
     # no extra processing. Its main purpose is to follow the Null Pattern.
     class UnitTransformer
-      def one(item)
-        item
+      def one(result)
+        result
       end
 
-      def many(items, pagination)
-        { items: items, _pagination: pagination }
+      def many(results, pagination)
+        { items: results, _pagination: pagination }
       end
     end
   end
