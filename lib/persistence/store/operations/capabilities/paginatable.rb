@@ -6,9 +6,7 @@ module Persistence
       module Capabilities
         # Makes the Operation capable of being paginated.
         module Paginatable
-          def limit(size); end
-
-          def offset(size); end
+          def paginate(kind); end
         end
       end
     end
