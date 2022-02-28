@@ -1,4 +1,5 @@
 require 'simplecov'
+require 'sequel'
 
 require_relative '../lib/persitence'
 
