@@ -14,17 +14,23 @@ module Persistence
   # user_repository = UserRespository.new
   # users_paginated = user_repository.all
   class Repository
-    def initialize
-      @engine = ENGINE || raise_no_engine!
-      @transformer = TRANSFORMER || Transformers::UnitTransformer
+    attr_reader :engine, :transformer
+
+    def initialize(engine:, transformer: nil)
+      @engine = engine
+      @transformer = transformer || Transformers::UnitTransformer
     end
 
     def count
       engine.count.perform
     end
 
+    def count_where(filters)
+      engine.count.where(filters).perform
+    end
+
     def all
-      items, pagination = engine.select.limit(0).paginate.perform
+      items, pagination = engine.select.paginate.perform
 
       transformer.many(items, pagination)
     end
@@ -70,18 +76,18 @@ module Persistence
       transformer.many(items, pagination)
     end
 
-    def where(filters, pagination = {})
-      items, pagination = engine.select.where(filters).paginate(pagination).perform
-
-      transformer.many(items, pagination)
-    end
-
-    def one_where(filters)
+    def find_where(filters)
       item = engine.select.where(filters).limit(1).perform
 
       return unless item
 
       transformer.one(item)
+    end
+
+    def find_many_where(filters, pagination = {})
+      items, pagination = engine.select.where(filters).paginate(pagination).perform
+
+      transformer.many(items, pagination)
     end
 
     def create(input)

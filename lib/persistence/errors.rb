@@ -8,7 +8,6 @@ module Persistence
 end
 
 require_relative 'errors/error'
-require_relative 'errors/adapter_error'
 require_relative 'errors/engine_error'
 require_relative 'errors/operation_error'
 require_relative 'errors/transformer_error'

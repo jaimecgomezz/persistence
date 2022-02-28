@@ -7,15 +7,11 @@ module Persistence
     class Engine
       attr_reader :operation, :table, :adapter, :adapter_method, :driver
 
-      ADAPTERS = {
-        postgres: Operations::Adapters::PostgresAdapter.adapter_method
-      }.freeze
-
-      def initialize(driver, table, adapter)
+      def initialize(table, driver:)
         if ADAPTERS.include?(adapter)
-          @driver = driver
           @table = table
           @adapter = adapter
+          @driver = driver
           @adapter_method = ADAPTERS[adapter]
         else
           msg = "The :#{adapter} adapter is not supported. Available: #{ADAPTERS.keys}"
@@ -58,15 +54,9 @@ module Persistence
       # understood and executed by the Driver.
       def perform
         validate_existing_operation!
-        directive = operation.send(adapter_method)
-        result = driver.run(directive)
-        operation.finally(result)
-      rescue NoMethodError => e
-        msg = if e.name == 'run'
-                "The #{driver.class} driver doesn't implements :run required by #{self.class}"
-              else
-                "The #{operation.class} operation doesn't implements the #{adapter.capitalize} adapter"
-              end
+        driver.run(operation)
+      rescue NoMethodError, ArgumentError
+        msg = "The #{driver.class} driver doesn't implements #run(operation)"
         raise(Persistence::Errors::OperationError, msg)
       rescue Exeption => e
         raise(Persistence::Errors::DriverError, e.message)
