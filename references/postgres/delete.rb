@@ -1,7 +1,8 @@
 engine.delete
-  .where(conditions)  # sym || Hash[sym, *] || Conditions
-    .or(conditions)   # sym || Hash[sym, *] || Conditions
-    .and(conditions)  # sym || Hash[sym, *] || Conditions
+  .require(operations)  # Hash[sym, SelectOperation]
+  .where(conditions)    # sym || Hash[sym, *] || Conditions
+    .or(conditions)     # sym || Hash[sym, *] || Conditions
+    .and(conditions)    # sym || Hash[sym, *] || Conditions
       .is(value)
       .is_not(value)
       .gt(value)
@@ -14,5 +15,5 @@ engine.delete
       .is_null
       .is_empty
       .is_present
-  ,return(fields)     # sym || [sym] || Hash[sym, nil || sym || string]
+  ,return(fields)       # sym || [sym] || Hash[sym, nil || sym || string]
 # .using TODO

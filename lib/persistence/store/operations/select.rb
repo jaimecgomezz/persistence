@@ -5,13 +5,6 @@ module Persistence
     module Operations
       # Responsible of building a READ Directive.
       class Select < Operation
-        attr_reader :single
-
-        def finally(result)
-          return result.first if single
-
-          result
-        end
       end
     end
   end

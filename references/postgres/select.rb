@@ -1,4 +1,5 @@
 engine.select
+  .require(operations)  # Hash[sym, SelectOperation]
   .preload(association) # Hash[sym, SelectOperation]
   .distinct(fields)     # sym || [sym]
   .aggregate(field)     # sym || [sym] || Hash[sym, sym || Hash[sym, sym]]
