@@ -3,8 +3,8 @@
 module Persistence
   module Store
     module Operations
-      # Responsible of building a CREATE Directive.
-      class CreateOperation < BaseOperation
+      # Responsible of building a DELETE Directive.
+      class Delete < Operation
       end
     end
   end

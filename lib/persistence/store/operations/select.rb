@@ -4,7 +4,7 @@ module Persistence
   module Store
     module Operations
       # Responsible of building a READ Directive.
-      class SelectOperation < BaseOperation
+      class Select < Operation
         attr_reader :single
 
         def finally(result)

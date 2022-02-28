@@ -4,7 +4,7 @@ module Persistence
   module Store
     module Operations
       # Responsible of building a COUNT Directive.
-      class CountOperation < BaseOperation
+      class Count < Operation
       end
     end
   end

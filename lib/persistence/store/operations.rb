@@ -9,11 +9,10 @@ module Persistence
   end
 end
 
-require_relative 'operations/adapters'
 require_relative 'operations/capabilities'
-require_relative 'operations/base_operation'
-require_relative 'operations/select_operation'
-require_relative 'operations/delete_operation'
-require_relative 'operations/update_operation'
-require_relative 'operations/create_operation'
-require_relative 'operations/count_operation'
+require_relative 'operations/operation'
+require_relative 'operations/select'
+require_relative 'operations/delete'
+require_relative 'operations/update'
+require_relative 'operations/create'
+require_relative 'operations/count'

@@ -4,9 +4,7 @@ module Persistence
   module Store
     module Operations
       # Defines the basic Operation structure and behaviour.
-      class BaseOperation
-        include Adapters::PostgresAdapter
-
+      class Operation
         attr_reader :table
 
         def initialize(table)
