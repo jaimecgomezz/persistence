@@ -10,6 +10,7 @@ module Persistence
   end
 end
 
+require_relative 'capabilities/helpers'
 require_relative 'capabilities/filter'
 require_relative 'capabilities/joiner'
 require_relative 'capabilities/paginator'
