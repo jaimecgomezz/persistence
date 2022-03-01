@@ -13,25 +13,28 @@ module Persistence
           # builder = FiltersBuilder.new
           #
           # builder.build({ id: 1 })
-          # => { __operand: :eq, __value: 1 }
+          # => { __negate: false, __operand: :eq, __value: 1 }
           #
           # builder.build({ id: [1,2,3] })
-          # => { __operand: :in, __value: [1,2,3] }
+          # => { __negate: false, __operand: :in, __value: [1,2,3] }
           #
           # builder.build({ name: /[a-z]+/ })
-          # => { __operand: :like, __value: /[a-z]+/ }
+          # => { __negate: false, __operand: :like, __value: /[a-z]+/ }
           #
-          # builder.build({ __operand: :lt, __value: 10 })
-          # { __operand: :lt, __value: 10 }
+          # builder.build({ __negate: false, __operand: :lt, __value: 10 })
+          # { __negate: false, __operand: :lt, __value: 10 }
           #
           # builder.build({ meta: { org: { id: 1 } } })
           # {
+          # __negate: false,
           #   __operand: :nested,
           #   __value: {
           #     meta: {
+          #       __negate: false,
           #       __operand: :nested,
           #       __value: {
           #         org: {
+          #           __negate: false,
           #           __operand: :nested,
           #           __value: {
           #             id: {
@@ -82,17 +85,17 @@ module Persistence
             def build_filter_from_value(value)
               case value
               when Array
-                { __operand: :in, __value: value }
+                { __negate: false, __operand: :in, __value: value }
               when Range
-                { __operand: :between, __value: [value.first, value.last] }
+                {  __negate: false, __operand: :between, __value: [value.first, value.last] }
               when Regexp
-                { __operand: :like, __value: value }
+                { __negate: false, __operand: :like, __value: value }
               when Hash
                 return value if is_custom_filter?(value)
 
-                { __operand: :nested, __value: build_filters_from_hash(value) }
+                { __negate: false, __operand: :nested, __value: build_filters_from_hash(value) }
               else
-                { __operand: :eq, __value: value }
+                { __negate: false, __operand: :eq, __value: value }
               end
             end
 

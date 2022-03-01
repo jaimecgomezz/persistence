@@ -22,6 +22,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Helpers::FiltersBui
           d: 'word',
           e: {
             __operand: :lt,
+            __negate: true,
             __value: 10
           },
           f: {
@@ -34,20 +35,36 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Helpers::FiltersBui
       let(:result) { builder.build(filters) }
 
       it 'handles array filters' do
-        expect(result[:a]).to match({ __operand: :in, __value: filters[:a] })
+        expect(result[:a]).to match({
+          __negate: false,
+          __operand: :in,
+          __value: filters[:a]
+        })
       end
 
       it 'handles range filters' do
         range = filters[:b]
-        expect(result[:b]).to match({ __operand: :between, __value: [range.first, range.last] })
+        expect(result[:b]).to match({
+          __negate: false,
+          __operand: :between,
+          __value: [range.first, range.last]
+        })
       end
 
       it 'handles regex filters' do
-        expect(result[:c]).to match({ __operand: :like, __value: filters[:c] })
+        expect(result[:c]).to match({
+          __negate: false,
+          __operand: :like,
+          __value: filters[:c]
+        })
       end
 
       it 'handles simple filters' do
-        expect(result[:d]).to match({ __operand: :eq, __value: filters[:d] })
+        expect(result[:d]).to match({
+          __negate: false,
+          __operand: :eq,
+          __value: filters[:d]
+        })
       end
 
       it 'handles custom filters' do
@@ -57,12 +74,15 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Helpers::FiltersBui
       it 'handles nested filters' do
         expect(result[:f]).to match(
           {
+            __negate: false,
             __operand: :nested,
             __value: {
               g: {
+                __negate: false,
                 __operand: :nested,
                 __value: {
                   h: {
+                    __negate: false,
                     __operand: :eq,
                     __value: 10
                   }
