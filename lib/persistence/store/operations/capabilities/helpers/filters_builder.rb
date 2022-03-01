@@ -54,7 +54,6 @@ module Persistence
               like: 'Value matching pattern',
               nested: 'Hash value',
               eq: 'Value should be equal',
-              not: 'Value should be different',
               lt: 'Value should be smaller than',
               lte: 'Value must be smaller or equal than',
               gt: 'Value must be greater than',
