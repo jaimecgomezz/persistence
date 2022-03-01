@@ -1,7 +1,7 @@
 require 'simplecov'
 require 'sequel'
 
-require_relative '../lib/persitence'
+require_relative '../lib/persistence'
 
 SimpleCov.start do
   add_filter 'lib/'
@@ -23,8 +23,6 @@ RSpec.configure do |config|
   config.warnings = true
 
   config.default_formatter = 'doc' if config.files_to_run.one?
-
-  config.profile_examples = 5
 
   config.order = :random
   Kernel.srand config.seed
