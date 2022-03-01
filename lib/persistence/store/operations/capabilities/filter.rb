@@ -4,9 +4,9 @@ module Persistence
   module Store
     module Operations
       module Capabilities
-        # Makes the Operation capable of being preloaded with associations.
-        module Preloadable
-          def preload(associations); end
+        # Makes the Operation capable of being filtered by specific criteria.
+        module Filter
+          def where(filters = nil); end
         end
       end
     end

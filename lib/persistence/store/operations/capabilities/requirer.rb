@@ -4,9 +4,9 @@ module Persistence
   module Store
     module Operations
       module Capabilities
-        # Makes the Operation capable of being paginated.
-        module Paginatable
-          def paginate(kind); end
+        # Makes the Operation being capable of requiring Operations.
+        module Requirer
+          def require(operations); end
         end
       end
     end

@@ -4,9 +4,9 @@ module Persistence
   module Store
     module Operations
       module Capabilities
-        # Makes the Operation capable of being filtered by specific criteria.
-        module Filterable
-          def where(filters = nil); end
+        # Makes the Operation capable of being paginated.
+        module Paginator
+          def paginate(kind); end
         end
       end
     end

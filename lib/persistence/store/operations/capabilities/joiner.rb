@@ -5,7 +5,7 @@ module Persistence
     module Operations
       module Capabilities
         # Makes the Operation capable of being joined with other tables.
-        module Joinable
+        module Joiner
           def join(table); end
         end
       end

@@ -10,8 +10,8 @@ module Persistence
   end
 end
 
-require_relative 'capabilities/filterable'
-require_relative 'capabilities/joinable'
-require_relative 'capabilities/paginatable'
-require_relative 'capabilities/preloadable'
-require_relative 'capabilities/requirable'
+require_relative 'capabilities/filter'
+require_relative 'capabilities/joiner'
+require_relative 'capabilities/paginator'
+require_relative 'capabilities/preloader'
+require_relative 'capabilities/requirer'
