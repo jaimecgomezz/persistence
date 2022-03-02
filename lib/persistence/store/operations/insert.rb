@@ -3,8 +3,8 @@
 module Persistence
   module Store
     module Operations
-      # Responsible of building a CREATE Directive.
-      class Create < Operation
+      # Responsible of building an INSERT Directive.
+      class Insert < Operation
       end
     end
   end

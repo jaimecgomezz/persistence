@@ -25,9 +25,9 @@ module Persistence
         self
       end
 
-      def create
+      def insert
         validate_no_existing_operation!
-        @operation = Operations::Create.new(table)
+        @operation = Operations::Insert.new(table)
         self
       end
 
