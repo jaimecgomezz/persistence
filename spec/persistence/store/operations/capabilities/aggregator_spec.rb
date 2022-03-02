@@ -3,13 +3,12 @@
 RSpec.describe Persistence::Store::Operations::Capabilities::Aggregator do
   let(:mocker) { Class.new { include Persistence::Store::Operations::Capabilities::Aggregator }.new }
 
-  let(:function) { [:max, :min, :sum, :count].sample }
-
   describe '#aggregate' do
+    let(:function) { [:max, :min, :sum, :count].sample }
     let(:overwriter_function) { [:any, :other, :value, :lol].sample }
 
     context 'with a symbol as argument' do
-      let(:symbol) { :a }
+      let(:symbol) { [:a, :b, :c, :d].sample }
       let(:resulting) { mocker.aggregate(function, symbol) }
 
       it 'build aggregation for field with no alias' do
@@ -82,7 +81,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Aggregator do
         end
       end
 
-      context 'with each having size of 1 or 2' do
+      context 'with all having size of 1 or 2' do
         let(:list) { [[[:a], [:a, :A]].sample] }
 
         it 'builds aggregation for field with alias' do
