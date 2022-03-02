@@ -33,6 +33,10 @@ module Persistence
 
           private
 
+          def filters
+            ([primary_filters] + secondary_filters).compact
+          end
+
           def respond_to_missing?(method, priv)
             valid_method_missing?(method) || super
           end
