@@ -2,7 +2,6 @@
 
 RSpec.describe Persistence::Store::Operations::Capabilities::Aggregator do
   let(:mocker) { Class.new { include Persistence::Store::Operations::Capabilities::Aggregator }.new }
-  let(:builder) { Persistence::Store::Operations::Capabilities::Helpers::AggreationsBuilder }
 
   let(:function) { [:max, :min, :sum, :count].sample }
 
