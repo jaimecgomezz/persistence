@@ -5,15 +5,10 @@ module Persistence
     module Operations
       # Defines the basic Operation structure and behaviour.
       class Operation
-        attr_reader :table
+        attr_reader :resource
 
-        def initialize(table)
-          @table = table
-        end
-
-        # Hook executed after the Driver has run the Directive.
-        def finally(result)
-          result
+        def initialize(resource)
+          @resource = resource
         end
       end
     end

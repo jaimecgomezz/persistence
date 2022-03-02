@@ -5,11 +5,11 @@ module Persistence
     # Class that acts as the proxy between the consumer (e.g. Repository) and
     # the Operation to be performed.
     class Engine
-      attr_reader :operation, :table, :adapter, :adapter_method, :driver
+      attr_reader :operation, :resource, :adapter, :adapter_method, :driver
 
-      def initialize(table, driver:)
+      def initialize(resource, driver:)
         if ADAPTERS.include?(adapter)
-          @table = table
+          @resource = resource
           @adapter = adapter
           @driver = driver
           @adapter_method = ADAPTERS[adapter]
@@ -21,31 +21,31 @@ module Persistence
 
       def select
         validate_no_existing_operation!
-        @operation = Operations::Select.new(table)
+        @operation = Operations::Select.new(resource)
         self
       end
 
       def insert
         validate_no_existing_operation!
-        @operation = Operations::Insert.new(table)
+        @operation = Operations::Insert.new(resource)
         self
       end
 
       def update
         validate_no_existing_operation!
-        @operation = Operations::Update.new(table)
+        @operation = Operations::Update.new(resource)
         self
       end
 
       def delete
         validate_no_existing_operation!
-        @operation = Operations::Delete.new(table)
+        @operation = Operations::Delete.new(resource)
         self
       end
 
       def count
         validate_no_existing_operation!
-        @operation = Operations::Count.new(table)
+        @operation = Operations::Count.new(resource)
         self
       end
 
