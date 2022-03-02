@@ -13,4 +13,3 @@ end
 
 require_relative 'sequel/driver'
 require_relative 'sequel/postgres'
-require_relative 'sequel/clauses'
