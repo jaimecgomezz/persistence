@@ -4,7 +4,7 @@ module Persistence
   module Store
     module Operations
       module Capabilities
-        # Contains classess with core funtionality that is made available
+        # Contains classes with core functionality that is made available
         # through a Capability.
         module Helpers
         end

@@ -4,9 +4,10 @@ module Persistence
   module Store
     module Operations
       module Capabilities
-        # Makes the Operation capable of joining external tables in the result.
-        module Joiner
-          def join(table); end
+        # Makes the Operation capable of aggregating result fields.
+        module Aggregator
+          def aggregate(fields)
+          end
         end
       end
     end

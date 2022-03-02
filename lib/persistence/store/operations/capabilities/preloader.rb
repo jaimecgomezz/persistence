@@ -4,7 +4,8 @@ module Persistence
   module Store
     module Operations
       module Capabilities
-        # Makes the Operation capable of being preloaded with associations.
+        # Makes the Operation capable of preloading associations into the final
+        # result.
         module Preloader
           def preload(associations); end
         end

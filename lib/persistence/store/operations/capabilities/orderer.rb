@@ -4,9 +4,10 @@ module Persistence
   module Store
     module Operations
       module Capabilities
-        # Makes the Operation capable of joining external tables in the result.
-        module Joiner
-          def join(table); end
+        # Makes the Operation capable of ordering results.
+        module Orderer
+          def order(order)
+          end
         end
       end
     end

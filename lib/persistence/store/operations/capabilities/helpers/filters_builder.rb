@@ -26,7 +26,7 @@ module Persistence
           #
           # builder.build({ meta: { org: { id: 1 } } })
           # {
-          # __negate: false,
+          #   __negate: false,
           #   __operand: :nested,
           #   __value: {
           #     meta: {
@@ -86,7 +86,7 @@ module Persistence
               when Array
                 { __negate: false, __operand: :in, __value: value }
               when Range
-                {  __negate: false, __operand: :between, __value: [value.first, value.last] }
+                { __negate: false, __operand: :between, __value: [value.first, value.last] }
               when Regexp
                 { __negate: false, __operand: :like, __value: value }
               when Hash
