@@ -6,8 +6,10 @@ module Persistence
       # Responsible of building a DELETE Directive.
       class Delete < Operation
         include Capabilities::Filter
-        include Capabilities::Requirer
         include Capabilities::Retriever
+
+        # Pending
+        include Capabilities::Requirer
       end
     end
   end

@@ -6,8 +6,10 @@ module Persistence
       # Responsible of building an UPDATE Directive.
       class Update < Operation
         include Capabilities::Filter
-        include Capabilities::Requirer
         include Capabilities::Retriever
+
+        # Pending
+        include Capabilities::Requirer
         include Capabilities::Setter
       end
     end
