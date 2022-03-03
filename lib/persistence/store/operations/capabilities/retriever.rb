@@ -13,15 +13,7 @@ module Persistence
           #
           # Examples
           #
-          # # Handles single field
-          # Select.where({ id: 1 }).retrieve(:id)
-          # => #<Select:0x000055837e273178
-          #       @retrievables={
-          #         id: { alias: nil, resource: nil }
-          #       }
-          #     >
-          #
-          # # Handles a list of fields
+          # # Handles fields as positional arguments
           # Select.where({ id: 1 }).retrieve(:id, :name, resource: :users)
           # => #<Select:0x000055837e273178
           #       @retrievables={
@@ -30,11 +22,39 @@ module Persistence
           #       }
           #     >
           #
-          # # Handles fields with alias
+          # # Handles fields with aliases as positional arguments
           # Select.where({ id: 1 }).retrieve(:id, [:name, :NAME], resource: :users)
           # => #<Select:0x000055837e273178
           #       @retrievables={
           #         id: { alias: nil, resource: :users },
+          #         name: { alias: :NAME, resource: :users }
+          #       }
+          #     >
+          #
+          # # Handles fields with aliases as kwarguments
+          # Select.where({ id: 1 }).retrieve(id: :ID, name: :NAME, resource: :users)
+          # => #<Select:0x000055837e273178
+          #       @retrievables={
+          #         id: { alias: :ID, resource: :users },
+          #         name: { alias: :NAME, resource: :users }
+          #       }
+          #     >
+          #
+          # # Handles fields with custom mappings as kwarguments
+          # Select.where({ id: 1 }).retrieve(
+          #   id: {
+          #     alias: :ID,
+          #     resource: :users
+          #   },
+          #   name: {
+          #     alias: :NAME,
+          #     resource: :users
+          #   },
+          #   resource: :other
+          # )
+          # => #<Select:0x000055837e273178
+          #       @retrievables={
+          #         id: { alias: :ID, resource: :users },
           #         name: { alias: :NAME, resource: :users }
           #       }
           #     >
