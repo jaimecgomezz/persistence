@@ -7,7 +7,9 @@ module Persistence
         # Makes the Operation capable of retrieving specific fields from results.
         module Retriever
           # Defines a @retrievables instance variable that maps each fields
-          # expected to be retrieved by the operation.
+          # expected to be retrieved by the operation with a descriptive hash
+          # that should be later understood by the Driver in order to build
+          # query's return.
           #
           # Examples
           #
