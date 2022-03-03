@@ -38,7 +38,9 @@ module Persistence
           #         name: { alias: :NAME, resource: :users }
           #       }
           #     >
-          def retrieve(*items, resource: nil)
+          def retrieve(*items, **kwitems)
+            resource, remaining = resource_from_kwitems(kwitems)
+
             items.map do |item|
               case item
               when Symbol, String
@@ -51,6 +53,18 @@ module Persistence
                 invalid_fields!
               end
             end
+
+            remaining.each do |field, value|
+              case value
+              when Symbol, String
+                handle_field(resource, field, value)
+              when Hash
+                retrievables[field] = value
+              else
+                invalid_fields!
+              end
+            end
+
             self
           end
 
@@ -59,6 +73,12 @@ module Persistence
           end
 
           private
+
+          def resource_from_kwitems(kwitems)
+            resource = kwitems[:resource]
+            remaining = kwitems.slice(*kwitems.keys - [:resource])
+            [resource, remaining]
+          end
 
           def handle_field(resource, field, aka = nil)
             retrievables[field] = { resource: resource, alias: aka }
