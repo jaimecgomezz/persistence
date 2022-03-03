@@ -80,7 +80,11 @@ module Persistence
 
           def invalid_usage!
             reset_filtering_config
-            msg = "Invalid Filter usage, #where or #where_not should be called at leat once before calling: #or, #and"
+            msg = if filters.empty?
+                    "Can't set extra filters until #where or #where_not had been called at least once"
+                  else
+                    "For setting extra filters use nested methods #where.and or #where.or"
+                  end
             raise(Persistence::Errors::OperationError, msg)
           end
         end
