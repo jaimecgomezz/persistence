@@ -2,7 +2,7 @@
 
 RSpec.describe Persistence::Store::Drivers::Sequel::Postgres do
   let(:db) { Sequel.mock(fetch: fetch) }
-  let(:mocker) { described_class.new(db: db, logging: false) }
+  let(:mocker) { described_class.new(db: db) }
 
   describe '#run_custom' do
     let(:id) { uuid }
