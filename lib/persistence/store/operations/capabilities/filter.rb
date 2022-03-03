@@ -8,33 +8,57 @@ module Persistence
         module Filter
           NESTED_METHODS = %i(or and).freeze
 
-          def initialize(*args, **kwargs, &block)
-            @__filtering_config = {
-              state: nil,
-              negate: false,
-              primary_filters: nil,
-              secondary_filters: []
-            }
-            super
-          end
-
-          def where(filters = nil)
-            @__filtering_config[:state] = :filtering
-            handle_primary_filters(filters)
+          def where(hash = nil)
+            @filtering_config = { filtering: true, negate: false }
+            handle_primary_filters(hash)
             self
           end
 
-          def where_not(filters = nil)
-            @__filtering_config[:state] = :filtering
-            @__filtering_config[:negate] = true
-            handle_primary_filters(filters)
+          def where_not(hash = nil)
+            @filtering_config = { filtering: true, negate: true }
+            handle_primary_filters(hash)
             self
+          end
+
+          def filters
+            @filters ||= []
           end
 
           private
 
-          def filters
-            ([primary_filters] + secondary_filters).compact
+          def handle_primary_filters(hash)
+            return if hash.nil?
+
+            invalid_usage! unless filters.empty?
+
+            add_filters(hash, :and)
+          end
+
+          def handle_secondary_filters(hash, operand)
+            invalid_usage! if filters.empty?
+
+            add_filters(hash, operand)
+          end
+
+          def add_filters(hash, operand)
+            filters.push({
+              __operand: operand,
+              __negate: filtering_config[:negate],
+              __filters: filters_builder.build(hash)
+            })
+            reset_filtering_config
+          end
+
+          def filters_builder
+            @filters_builder ||= Helpers::FiltersBuilder.new
+          end
+
+          def reset_filtering_config
+            @filtering_config = { filtering: false, negate: false }
+          end
+
+          def filtering_config
+            @filtering_config ||= { filtering: false, negate: false }
           end
 
           def respond_to_missing?(method, priv)
@@ -50,68 +74,14 @@ module Persistence
             end
           end
 
-          def handle_primary_filters(filters)
-            return if filters.nil?
-
-            if primary_filters.nil?
-              @__filtering_config[:primary_filters] = {
-                __negate: negate_filtering,
-                __operand: :eq,
-                __filters: filters_builder.build(filters)
-              }
-
-              set_default_filtering_config
-            else
-              set_default_filtering_config
-              msg = "Primary filters have already been set, use nested setters: #and, #or"
-              raise(Persistence::Errors::OperationError, msg)
-            end
-          end
-
-          def handle_secondary_filters(filters, operand)
-            if !primary_filters.nil?
-              @__filtering_config[:secondary_filters].push({
-                __negate: negate_filtering,
-                __operand: operand,
-                __filters: filters_builder.build(filters)
-              })
-              set_default_filtering_config
-            else
-              set_default_filtering_config
-              msg = "Primary filters should be set in order to use nested methods"
-              raise(Persistence::Errors::OperationError, msg)
-            end
-          end
-
-          def set_default_filtering_config
-            @__filtering_config = @__filtering_config.merge({
-              state: nil,
-              negate: false
-            })
-          end
-
           def valid_method_missing?(method)
-            filtering_state == :filtering && NESTED_METHODS.include?(method)
+            filtering_config[:filtering] && NESTED_METHODS.include?(method)
           end
 
-          def filters_builder
-            @filters_builder ||= Helpers::FiltersBuilder.new
-          end
-
-          def primary_filters
-            @__filtering_config[:primary_filters]
-          end
-
-          def secondary_filters
-            @__filtering_config[:secondary_filters]
-          end
-
-          def filtering_state
-            @__filtering_config[:state]
-          end
-
-          def negate_filtering
-            @__filtering_config[:negate]
+          def invalid_usage!
+            reset_filtering_config
+            msg = "Invalid Filter usage, #where or #where_not should be called at leat once before calling: #or, #and"
+            raise(Persistence::Errors::OperationError, msg)
           end
         end
       end
