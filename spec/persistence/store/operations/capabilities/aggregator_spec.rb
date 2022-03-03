@@ -34,7 +34,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Aggregator do
     end
 
     context 'with keyword arguments' do
-      context 'being symbols/strings' do
+      context 'having symbols/strings as values' do
         let(:resulting) { mocker.aggregate(a: :A, aggregation: :sum) }
 
         it "assumes field's alias was provided" do
@@ -47,7 +47,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Aggregator do
         end
       end
 
-      context 'being hashes' do
+      context 'having hashes as values' do
         let(:mapping) { { alias: :A, aggregation: :max } }
         let(:resulting) { mocker.aggregate(a: mapping, aggregation: :sum) }
 
@@ -56,7 +56,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Aggregator do
         end
       end
 
-      context 'being any other data type' do
+      context 'having any other data type as values' do
         it 'raises exception' do
           expect { mocker.aggregate(a: 1, aggregation: :sum) }.to raise_error(Persistence::Errors::OperationError)
         end

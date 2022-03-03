@@ -22,16 +22,7 @@ module Persistence
           #       }
           #     >
           #
-          # # Handles fields with aliases as positional arguments
-          # Select.where({ id: 1 }).retrieve(:id, [:name, :NAME], resource: :users)
-          # => #<Select:0x000055837e273178
-          #       @retrievables={
-          #         id: { alias: nil, resource: :users },
-          #         name: { alias: :NAME, resource: :users }
-          #       }
-          #     >
-          #
-          # # Handles fields with aliases as kwarguments
+          # # Handles fields with aliases as keyword arguments
           # Select.where({ id: 1 }).retrieve(id: :ID, name: :NAME, resource: :users)
           # => #<Select:0x000055837e273178
           #       @retrievables={
@@ -59,16 +50,13 @@ module Persistence
           #       }
           #     >
           def retrieve(*items, **kwitems)
-            resource, remaining = resource_from_kwitems(kwitems)
+            resource, remaining = kwarg_from_kwitems(kwitems, :resource)
 
             items.map do |item|
               case item
               when Symbol, String
                 field = item
                 handle_field(resource, field)
-              when Array
-                field, aka = item
-                handle_field(resource, field, aka)
               else
                 invalid_fields!
               end
@@ -94,10 +82,10 @@ module Persistence
 
           private
 
-          def resource_from_kwitems(kwitems)
-            resource = kwitems[:resource]
-            remaining = kwitems.slice(*kwitems.keys - [:resource])
-            [resource, remaining]
+          def kwarg_from_kwitems(kwitems, kwarg)
+            value = kwitems[kwarg]
+            remaining = kwitems.slice(*kwitems.keys - [kwarg])
+            [value, remaining]
           end
 
           def handle_field(resource, field, aka = nil)
