@@ -4,119 +4,58 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Aggregator do
   let(:mocker) { Class.new { include Persistence::Store::Operations::Capabilities::Aggregator }.new }
 
   describe '#aggregate' do
-    let(:function) { [:max, :min, :sum, :count].sample }
-    let(:overwriter_function) { [:any, :other, :value, :lol].sample }
+    it 'returns self' do
+      expect(mocker.aggregate(:income, aggregation: :sum)).to be(mocker)
+    end
 
-    context 'with a symbol as argument' do
-      let(:symbol) { [:a, :b, :c, :d].sample }
-      let(:resulting) { mocker.aggregate(function, symbol) }
+    context 'with positional arguments all being symbols' do
+      let(:resulting) { mocker.aggregate(:income, :age, aggregation: :sum) }
 
-      it 'build aggregation for field with no alias' do
-        expected = Hash[[[symbol, { function: function, alias: nil }]]]
-
-        expect(resulting.send(:aggregations)).to match(expected)
-      end
-
-      context 'with previously defined aggregation' do
-        let(:second_resulting) { resulting.aggregate(overwriter_function, symbol) }
-
-        it 'overwrites field aggregation' do
-          expected = Hash[[[symbol, { function: overwriter_function, alias: nil }]]]
-
-          expect(second_resulting.send(:aggregations)).to match(expected)
-        end
+      it 'assumes list of fields was provided' do
+        expect(resulting.aggregations).to match({
+          income: {
+            alias: nil,
+            aggregation: :sum
+          },
+          age: {
+            alias: nil,
+            aggregation: :sum
+          }
+        })
       end
     end
 
-    context 'with a list of symbols as argument' do
-      let(:resulting) { mocker.aggregate(function, list) }
+    context 'with positional arguments all being lists of symbols' do
+      let(:resulting) { mocker.aggregate([:income, :INCOME], [:age, :AGE], aggregation: :sum) }
 
-      context 'with size of 0' do
-        let(:list) { [] }
-
-        it 'raises exception' do
-          expect { mocker.aggregate(function, list) }.to raise_error(Persistence::Errors::OperationError)
-        end
-      end
-
-      context 'with size of 1 or 2' do
-        let(:list) { [[:a], [:a, :A]].sample }
-
-        it 'builds aggregation for field with alias' do
-          expected = Hash[[[list[0], { function: function, alias: list[1] }]]]
-
-          expect(resulting.send(:aggregations)).to match(expected)
-        end
-
-        context 'with previously defined aggregation' do
-          let(:second_resulting) { resulting.aggregate(overwriter_function, list) }
-
-          it 'overwrites field aggregation' do
-            expected = Hash[[[list[0], { function: overwriter_function, alias: list[1] }]]]
-
-            expect(second_resulting.send(:aggregations)).to match(expected)
-          end
-        end
-      end
-
-      context 'with size over 2' do
-        let(:list) { [:a, :A, :B] }
-
-        it 'builds aggregation for field and ignores argument surplus' do
-          expected = Hash[[[list[0], { function: function, alias: list[1] }]]]
-
-          expect(resulting.send(:aggregations)).to match(expected)
-        end
+      it 'assumes list of fields with their alias was provided' do
+        expect(resulting.aggregations).to match({
+          income: {
+            alias: :INCOME,
+            aggregation: :sum
+          },
+          age: {
+            alias: :AGE,
+            aggregation: :sum
+          }
+        })
       end
     end
 
-    context 'with a list of lists of symbols as argument' do
-      let(:resulting) { mocker.aggregate(function, list) }
+    context 'with positional arguments either symbols or lists of symbols' do
+      let(:resulting) { mocker.aggregate(:income, [:age, :AGE], aggregation: :sum) }
 
-      context 'with any having size of 0' do
-        let(:list) { [[]] }
-
-        it 'raises exception' do
-          expect { mocker.aggregate(function, list) }.to raise_error(Persistence::Errors::OperationError)
-        end
-      end
-
-      context 'with all having size of 1 or 2' do
-        let(:list) { [[[:a], [:a, :A]].sample] }
-
-        it 'builds aggregation for field with alias' do
-          expected = Hash[[[list[0][0], { function: function, alias: list[0][1] }]]]
-
-          expect(resulting.send(:aggregations)).to match(expected)
-        end
-
-        context 'with previously defined aggregation' do
-          let(:second_resulting) { resulting.aggregate(overwriter_function, list) }
-
-          it 'overwrites field aggregation' do
-            expected = Hash[[[list[0][0], { function: overwriter_function, alias: list[0][1] }]]]
-
-            expect(second_resulting.send(:aggregations)).to match(expected)
-          end
-        end
-      end
-
-      context 'with any having size over 2' do
-        let(:list) { [[:a, :A, :B]] }
-
-        it 'builds aggregation for field and ignores argument surplus' do
-          expected = Hash[[[list[0][0], { function: function, alias: list[0][1] }]]]
-
-          expect(resulting.send(:aggregations)).to match(expected)
-        end
-      end
-    end
-
-    context 'with any other thing as argument' do
-      let(:other) { [1, {}, Class.new, true].sample }
-
-      it 'raises exception' do
-        expect { mocker.aggregate(function, other) }.to raise_error(Persistence::Errors::OperationError)
+      it 'assumes list of fields with optional aliases was provided' do
+        expect(resulting.aggregations).to match({
+          income: {
+            alias: nil,
+            aggregation: :sum
+          },
+          age: {
+            alias: :AGE,
+            aggregation: :sum
+          }
+        })
       end
     end
   end
