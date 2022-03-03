@@ -13,7 +13,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Orderer do
       let(:resulting) { mocker.order(*criteria) }
 
       it 'respects newest criteria' do
-        second_criteria = [:started_at] + criteria.shuffle + [:removed_at]
+        second_criteria = [:started_at, *criteria, :removed_at].shuffle
         expected = second_criteria.map { |c| { criteria: c, order: :asc, nulls: nil } }
 
         expect(resulting.order(*second_criteria).orderings).to match(expected)
