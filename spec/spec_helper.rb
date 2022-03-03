@@ -2,6 +2,7 @@ require 'simplecov'
 require 'sequel'
 
 require_relative '../lib/persistence'
+require_relative 'support/utils'
 
 SimpleCov.start do
   add_filter 'lib/'

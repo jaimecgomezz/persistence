@@ -8,4 +8,5 @@ module Persistence
 end
 
 require_relative 'store/operations'
+require_relative 'store/drivers'
 require_relative 'store/engine'

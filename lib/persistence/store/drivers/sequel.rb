@@ -11,5 +11,4 @@ module Persistence
   end
 end
 
-require_relative 'sequel/driver'
 require_relative 'sequel/postgres'
