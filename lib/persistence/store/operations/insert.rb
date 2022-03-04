@@ -7,8 +7,6 @@ module Persistence
       class Insert < Operation
         include Capabilities::Retriever
         include Capabilities::Requirer
-
-        # Pending
         include Capabilities::Setter
       end
     end

@@ -8,8 +8,6 @@ module Persistence
         include Capabilities::Filter
         include Capabilities::Retriever
         include Capabilities::Requirer
-
-        # Pending
         include Capabilities::Setter
       end
     end
