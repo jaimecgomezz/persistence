@@ -30,25 +30,24 @@ module Persistence
           #       ]
           #     >
           def group(*items, **kwitems)
-            clear_previous_configuration
+            clear_grouper_configuration
 
             items.each do |item|
               case item
               when Symbol, String
                 criteria = item
-                handle_criteria(criteria)
+                handle_grouping_criteria(criteria)
               else
-                invalid_criteria!
+                invalid_grouping_criteria!(criteria)
               end
             end
 
-            kwitems.each do |criteria, value|
-              case value
+            kwitems.each do |criteria, mapping|
+              case mapping
               when Hash
-                hash = value
-                handle_criteria_hash(criteria, hash)
+                handle_grouping_mapping(criteria, mapping)
               else
-                invalid_criteria!
+                invalid_grouping_criteria!(criteria)
               end
             end
 
@@ -65,39 +64,21 @@ module Persistence
             @grouping_indices ||= {}
           end
 
-          def handle_criteria(criteria)
-            if (index = grouping_indices[criteria])
-              groupings.delete_at(index)
-              update_grouping_indices
-            end
-
-            grouping_indices[criteria] = groupings.size
+          def handle_grouping_criteria(criteria)
             groupings.push({ criteria: criteria })
           end
 
-          def handle_criteria_hash(criteria, hash)
-            if (index = grouping_indices[criteria])
-              groupings.delete_at(index)
-              update_grouping_indices
-            end
-
-            grouping_indices[criteria] = groupings.size
-            groupings.push(hash.merge({ criteria: criteria }))
+          def handle_grouping_mapping(criteria, mapping)
+            groupings.push(mapping.merge({ criteria: criteria }))
           end
 
-          def update_grouping_indices
-            groupings.each_with_index do |grouping, index|
-              grouping_indices[grouping[:criteria]] = index
-            end
-          end
-
-          def clear_previous_configuration
+          def clear_grouper_configuration
             @groupings = []
             @grouping_indices = {}
           end
 
-          def invalid_criteria!
-            msg = "Invalid grouping criteria provided to #group"
+          def invalid_grouping_criteria!(sample)
+            msg = "Invalid grouping criteria provided to #group: #{sample}"
             raise(Persistence::Errors::OperationError, msg)
           end
         end
