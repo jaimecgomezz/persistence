@@ -23,15 +23,14 @@ module Persistence
           #       }
           #     >
           def join(**kwitems)
-            clear_previous_configuration
+            clear_joiner_configuration
 
-            kwitems.each do |resource, value|
-              case value
+            kwitems.each do |resource, mapping|
+              case mapping
               when Hash
-                mapping = value
                 handle_join_mapping(resource, mapping)
               else
-                invalid_mapping!
+                invalid_join_mapping!(resource)
               end
             end
 
@@ -45,21 +44,21 @@ module Persistence
           private
 
           def handle_join_mapping(resource, mapping)
-            invalid_mapping! unless valid_mapping?(mapping)
+            invalid_join_mapping!(resource) unless valid_join_mapping?(mapping)
             joins[resource] = mapping
           end
 
-          def valid_mapping?(mapping)
+          def valid_join_mapping?(mapping)
             required = [:kind, :left, :right]
             (mapping.keys & required).size == required.size
           end
 
-          def clear_previous_configuration
+          def clear_joiner_configuration
             @joins = {}
           end
 
-          def invalid_mapping!
-            msg = "Invalid mappings provided to #join"
+          def invalid_join_mapping!(sample)
+            msg = "Invalid mappings provided to #join: #{sample}"
             raise(Persistence::Errors::OperationError, msg)
           end
         end
