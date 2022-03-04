@@ -5,10 +5,10 @@ module Persistence
     module Operations
       # Defines the basic Operation structure and behaviour.
       class Operation
-        attr_reader :resource
+        attr_reader :source
 
-        def initialize(resource)
-          @resource = resource
+        def initialize(source)
+          @source = source
         end
       end
     end
