@@ -7,8 +7,6 @@ module Persistence
       class Delete < Operation
         include Capabilities::Filter
         include Capabilities::Retriever
-
-        # Pending
         include Capabilities::Requirer
       end
     end

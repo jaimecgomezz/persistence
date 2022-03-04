@@ -13,9 +13,9 @@ module Persistence
         include Capabilities::Differentiator
         include Capabilities::Grouper
         include Capabilities::Joiner
+        include Capabilities::Requirer
 
         # Pending
-        include Capabilities::Requirer
         include Capabilities::Paginator
         include Capabilities::Preloader
       end

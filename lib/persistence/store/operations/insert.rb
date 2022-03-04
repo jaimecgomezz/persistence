@@ -6,9 +6,9 @@ module Persistence
       # Responsible of building an INSERT Directive.
       class Insert < Operation
         include Capabilities::Retriever
+        include Capabilities::Requirer
 
         # Pending
-        include Capabilities::Requirer
         include Capabilities::Setter
       end
     end

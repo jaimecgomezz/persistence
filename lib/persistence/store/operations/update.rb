@@ -7,9 +7,9 @@ module Persistence
       class Update < Operation
         include Capabilities::Filter
         include Capabilities::Retriever
+        include Capabilities::Requirer
 
         # Pending
-        include Capabilities::Requirer
         include Capabilities::Setter
       end
     end
