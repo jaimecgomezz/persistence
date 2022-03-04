@@ -30,24 +30,23 @@ module Persistence
           #       ]
           #     >
           def distinct(*items, **kwitems)
-            clear_previous_configuration
+            clear_differentiator_configuration
 
             items.each do |criteria|
               case criteria
               when Symbol, String
-                handle_criteria(criteria)
+                handle_distinctiveness_criteria(criteria)
               else
-                invalid_criteria!
+                invalid_distinctiveness_criteria!(criteria)
               end
             end
 
-            kwitems.each do |criteria, value|
-              case value
+            kwitems.each do |criteria, mapping|
+              case mapping
               when Hash
-                hash = value
-                handle_criteria_hash(criteria, hash)
+                handle_distinctiveness_mapping(criteria, mapping)
               else
-                invalid_criteria!
+                invalid_distinctiveness_criteria!(mapping)
               end
             end
 
@@ -60,43 +59,21 @@ module Persistence
 
           private
 
-          def distincts_indices
-            @distincs_indices ||= {}
-          end
-
-          def handle_criteria(criteria)
-            if (index = distincts_indices[criteria])
-              distincts.delete_at(index)
-              update_distincts_indices
-            end
-
-            distincts_indices[criteria] = distincts.size
+          def handle_distinctiveness_criteria(criteria)
             distincts.push({ criteria: criteria })
           end
 
-          def handle_criteria_hash(criteria, hash)
-            if (index = distincts_indices[criteria])
-              distincts.delete_at(index)
-              update_distincts_indices
-            end
-
-            distincts_indices[criteria] = distincts.size
-            distincts.push(hash.merge({ criteria: criteria }))
+          def handle_distinctiveness_mapping(criteria, mapping)
+            distincts.push(mapping.merge({ criteria: criteria }))
           end
 
-          def update_distincts_indices
-            distincts.each_with_index do |distinct, index|
-              distincts_indices[distinct[:criteria]] = index
-            end
-          end
-
-          def clear_previous_configuration
+          def clear_differentiator_configuration
             @distincs = []
             @distincts_indices = {}
           end
 
-          def invalid_criteria!
-            msg = "Invalid distinctiveness criteria provided to #distinct"
+          def invalid_distinctiveness_criteria!(sample)
+            msg = "Invalid distinctiveness criteria provided to #distinct: #{sample}"
             raise(Persistence::Errors::OperationError, msg)
           end
         end
