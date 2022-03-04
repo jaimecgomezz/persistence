@@ -10,9 +10,9 @@ module Persistence
         include Capabilities::Retriever
         include Capabilities::Orderer
         include Capabilities::Differentiator
+        include Capabilities::Grouper
 
         # Pending
-        include Capabilities::Grouper
         include Capabilities::Joiner
         include Capabilities::Requirer
         include Capabilities::Paginator
