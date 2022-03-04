@@ -10,6 +10,7 @@ module Persistence
   end
 end
 
+require_relative 'capabilities/reactioner'
 require_relative 'capabilities/sourcer'
 require_relative 'capabilities/helpers'
 require_relative 'capabilities/filter'
