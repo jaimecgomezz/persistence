@@ -12,6 +12,20 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
       expect(mocker.where({ id: 1 })).to be(mocker)
     end
 
+    context 'with method being called multiple times' do
+      let(:resulting) { mocker.where({ id: 1 }) }
+
+      it 'overwrites previous configuration' do
+        expect(resulting.where({ id: 2 }).filters).to match([
+          {
+            __negate: false,
+            __operand: :and,
+            __filters: filters_builder.build({ id: 2 })
+          }
+        ])
+      end
+    end
+
     context 'with no arguments' do
       let(:resulting) { mocker.where }
 
@@ -30,12 +44,6 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
           __operand: :and,
           __filters: filters_builder.build(filters)
         })
-      end
-
-      context 'and existing primary filters' do
-        it 'raises exception' do
-          expect { resulting.where(secondary_filters) }.to raise_error(Persistence::Errors::OperationError)
-        end
       end
     end
 
@@ -81,6 +89,24 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
   end
 
   describe '#where_not' do
+    it 'returns self' do
+      expect(mocker.where_not({ id: 1 })).to be(mocker)
+    end
+
+    context 'with method being called multiple times' do
+      let(:resulting) { mocker.where_not({ id: 1 }) }
+
+      it 'overwrites previous configuration' do
+        expect(resulting.where_not({ id: 2 }).filters).to match([
+          {
+            __negate: true,
+            __operand: :and,
+            __filters: filters_builder.build({ id: 2 })
+          }
+        ])
+      end
+    end
+
     context 'with no arguments' do
       let(:resulting) { mocker.where_not }
 
@@ -99,12 +125,6 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
           __operand: :and,
           __filters: filters_builder.build(filters)
         })
-      end
-
-      context 'and existing primary filters' do
-        it 'raises exception' do
-          expect { resulting.where_not(secondary_filters) }.to raise_error(Persistence::Errors::OperationError)
-        end
       end
     end
 

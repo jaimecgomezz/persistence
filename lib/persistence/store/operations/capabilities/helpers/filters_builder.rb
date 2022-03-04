@@ -57,7 +57,8 @@ module Persistence
               lt: 'Value should be smaller than',
               lte: 'Value must be smaller or equal than',
               gt: 'Value must be greater than',
-              gte: 'Value must be greater or equal than'
+              gte: 'Value must be greater or equal than',
+              build: 'Value must be an Operation that can be #build'
             }.freeze
 
             def build(filters)
@@ -93,6 +94,8 @@ module Persistence
                 return value if is_custom_filter?(value)
 
                 { __negate: false, __operand: :nested, __value: build_filters_from_hash(value) }
+              when Persistence::Store::Operations::Operation
+                { __negate: false, __operand: :build, __value: value }
               else
                 { __negate: false, __operand: :eq, __value: value }
               end

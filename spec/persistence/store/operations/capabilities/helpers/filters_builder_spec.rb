@@ -5,6 +5,8 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Helpers::FiltersBui
   let(:now) { Time.now }
   let(:tomorrow) { now + (60 * 60 * 24) }
   let(:day_after_tomorrow) { tomorrow + (60 * 60 * 24) }
+  let(:operation) { Persistence::Store::Operations::Operation.new(:a) }
+  let(:specialized_operation) { Persistence::Store::Operations::Select.new(:b) }
 
   describe '.new' do
     it 'expects no arguments' do
@@ -29,7 +31,9 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Helpers::FiltersBui
             g: {
               h: 10
             }
-          }
+          },
+          g: operation,
+          h: specialized_operation
         }
       end
       let(:result) { builder.build(filters) }
@@ -91,6 +95,19 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Helpers::FiltersBui
             }
           }
         )
+      end
+
+      it 'handles operations as filters' do
+        expect(result[:g]).to match({
+          __negate: false,
+          __operand: :build,
+          __value: operation
+        })
+        expect(result[:h]).to match({
+          __negate: false,
+          __operand: :build,
+          __value: specialized_operation
+        })
       end
     end
   end
