@@ -9,27 +9,45 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Differentiator do
     end
 
     context 'with method being called multiple times' do
-      let(:resulting) { mocker.distinct(:a) }
+      let(:resulting) { mocker.distinct(:a, b: { alias: :B }) }
 
-      it 'overwrites distinctiveness configuration' do
-        expect(resulting.distinct(:b, on: :b).distincts).to match({ on: :b, distincts: [:b] })
+      it 'overwrites previous configuration' do
+        expect(resulting.distinct(:c, d: { alias: :D }).distincts).to match([
+          { criteria: :c },
+          { criteria: :d, alias: :D }
+        ])
       end
     end
 
     context 'with positional arguments' do
       context 'being symbols/strings' do
-        let(:resulting) { mocker.distinct(:a, :b, :c) }
+        let(:resulting) { mocker.distinct(:a, :b) }
 
-        it 'assumes a list of distinctiveness criteria was given' do
-          expect(resulting.distincts).to match({ on: nil, distincts: [:a, :b, :c] })
+        it 'assumes a list of distinctiveness criteria was provided' do
+          expect(resulting.distincts).to match([
+            { criteria: :a },
+            { criteria: :b }
+          ])
         end
+      end
 
-        context 'with :on being provided' do
-          let(:resulting) { mocker.distinct(:a, :b, :c, on: :a) }
+      context 'not being symbols/strings' do
+        it 'raises exception' do
+          expect { mocker.distinct(1) }.to raise_error(Persistence::Errors::OperationError)
+        end
+      end
+    end
 
-          it 'is included in the distinctiveness mapping' do
-            expect(resulting.distincts).to match({ on: :a, distincts: [:a, :b, :c] })
-          end
+    context 'with keyword arguments' do
+      context 'having hashes as values' do
+        let(:resulting) { mocker.distinct(:a, b: { apply: :sum }, c: { alias: :C }) }
+
+        it 'assumes a list of ordering criteria with custom mappings was provided' do
+          expect(resulting.distincts).to match([
+            { criteria: :a },
+            { criteria: :b, apply: :sum },
+            { criteria: :c, alias: :C }
+          ])
         end
       end
     end
