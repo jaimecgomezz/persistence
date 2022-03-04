@@ -9,10 +9,9 @@ module Persistence
           def set(*items, **kwitems)
             clear_setter_configuration
 
-            items.each do |item|
-              case item
+            items.each do |field|
+              case field
               when Symbol, String
-                field = item
                 handle_setter_field(field)
               else
                 invalid_setter_field!(field)

@@ -10,7 +10,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Retriever do
 
   describe '#retrieve' do
     it 'returns self' do
-      expect(mocker.retrieve(:id)).to be(mocker)
+      expect(mocker.from(:a).retrieve(:id)).to be(mocker)
     end
 
     context 'with method being called more than once' do
