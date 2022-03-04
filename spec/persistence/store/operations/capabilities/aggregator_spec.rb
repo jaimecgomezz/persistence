@@ -5,58 +5,68 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Aggregator do
 
   describe '#aggregate' do
     it 'returns self' do
-      expect(mocker.aggregate(:income, aggregation: :sum)).to be(mocker)
+      expect(mocker.aggregate(age: :sum)).to be(mocker)
     end
 
-    context 'with positional arguments' do
-      context 'being symbols/strings' do
-        let(:resulting) { mocker.aggregate(:income, :age, aggregation: :sum) }
+    context 'when called multiples times' do
+      let(:resulting) { mocker.aggregate(age: :avg) }
 
-        it 'assumes list of fields was provided' do
-          expect(resulting.aggregations).to match({
-            income: {
-              alias: nil,
-              aggregation: :sum
-            },
-            age: {
-              alias: nil,
-              aggregation: :sum
-            }
-          })
-        end
-      end
-
-      context 'not being symbols/strings' do
-        it 'raises exception' do
-          expect { mocker.aggregate(1, aggregation: :sum) }.to raise_error(Persistence::Errors::OperationError)
-        end
+      it 'overwrites previous configuration' do
+        expect(resulting.aggregate(income: :sum).aggregations).to match({
+          income: {
+            alias: nil,
+            aggregation: :sum
+          }
+        })
       end
     end
 
     context 'with keyword arguments' do
-      context 'having symbols/strings as values' do
-        let(:resulting) { mocker.aggregate(a: :A, aggregation: :sum) }
+      context 'having symbols/strings as their values' do
+        let(:resulting) { mocker.aggregate(age: :avg, income: :sum) }
 
-        it "assumes field's alias was provided" do
+        it "assumes a list of fields with their aggregations was provided" do
           expect(resulting.aggregations).to match({
-            a: {
-              alias: :A,
+            age: {
+              alias: nil,
+              aggregation: :avg
+            },
+            income: {
+              alias: nil,
               aggregation: :sum
             }
           })
         end
       end
 
-      context 'having hashes as values' do
-        let(:mapping) { { alias: :A, aggregation: :max } }
-        let(:resulting) { mocker.aggregate(a: mapping, aggregation: :sum) }
+      context 'having hashes as their values' do
+        context 'and hashes being valid custom mappings' do
+          let(:resulting) do
+            mocker.aggregate(age: { alias: :AGE, aggregation: :avg }, income: { alias: :INCOME, aggregation: :sum })
+          end
 
-        it 'assumes custom field mapping was provided' do
-          expect(resulting.aggregations).to match({ a: mapping })
+          it 'assumes custom field mapping was provided' do
+            expect(resulting.aggregations).to match({
+              age: {
+                alias: :AGE,
+                aggregation: :avg
+              },
+              income: {
+                alias: :INCOME,
+                aggregation: :sum
+              }
+            })
+          end
+        end
+
+        context 'and hashes being invalid custom aggregation mappings' do
+          it 'raises exception' do
+            expect { mocker.aggregate(a: {}) }.to raise_error(Persistence::Errors::OperationError)
+          end
         end
       end
 
-      context 'having any other data type as values' do
+      context 'having any other data type as their values' do
         it 'raises exception' do
           expect { mocker.aggregate(a: 1, aggregation: :sum) }.to raise_error(Persistence::Errors::OperationError)
         end

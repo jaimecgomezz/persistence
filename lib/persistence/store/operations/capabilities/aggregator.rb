@@ -9,62 +9,57 @@ module Persistence
           # Defines a @aggregations instance variable that maps each field
           # expected to be aggregated with a descriptive hash that should be
           # later understood by the Driver in order to build query's
-          # aggregation.
+          # aggregation component.
           #
-          # # Handles a list of fields as positional arguments
-          # Select.where({ id: 1 }).aggregate(:income, :age, aggregation: :sum)
+          # # Handles a list of fields with their aggregations as keyword arguments
+          # Select.all.aggregate(age: :avg, income: :sum)
           # => #<Select:0x000055837e273178
           #       @aggregations={
-          #         income: { alias: nil, aggregation: :sum },
-          #         age: { alias: nil, aggregation: :sum }
+          #         age: {
+          #           alias: nil,
+          #           aggregation: :avg
+          #         },
+          #         income: {
+          #           alias: nil,
+          #           aggregation: :sum
+          #         }
           #       }
           #     >
           #
-          # # Handles a list of fields with their aliases as keyword arguments
-          # Select.where({ id: 1 }).aggregate(:income, age: :AGE, aggregation: :sum)
-          # => #<Select:0x000055837e273178
-          #       @aggregations={
-          #         income: { alias: nil, aggregation: :sum },
-          #         age: { alias: :AGE, aggregation: :sum }
-          #       }
-          #     >
-          #
-          # # Handles a list of fields with custom mappings as keyword arguments
-          # Select.where({ id: 1 }).aggregate(
-          #   :income,
+          # # Handles a list of fields with custom aggregation mappings as keyword arguments
+          # Select.all.aggregate(
           #   age: {
           #     alias: :AGE,
-          #     aggregation: :max
+          #     aggregation: :avg
           #   },
-          #   aggregation: :sum
+          #   income: {
+          #     alias: :INCOME,
+          #     aggregation: :sum
+          #   }
           # )
           # => #<Select:0x000055837e273178
           #       @aggregations={
-          #         income: { alias: nil, aggregation: :sum },
-          #         age: { alias: :AGE, aggregation: :max }
+          #         age: {
+          #           alias: :AGE,
+          #           aggregation: :avg
+          #         },
+          #         income: {
+          #           alias: :INCOME,
+          #           aggregation: :sum
+          #         }
           #       }
           #     >
-          def aggregate(*items, **kwitems)
-            aggregation, remaining = kwarg_from_kwitems(kwitems, :aggregation)
+          def aggregate(**kwitems)
+            clean_aggregator_configuration
 
-            items.map do |item|
-              case item
+            kwitems.each do |field, aggregation|
+              case aggregation
               when Symbol, String
-                field = item
-                handle_field(aggregation, field)
-              else
-                invalid_fields!
-              end
-            end
-
-            remaining.each do |field, value|
-              case value
-              when Symbol, String
-                handle_field(aggregation, field, value)
+                handle_aggregation(field, aggregation)
               when Hash
-                aggregations[field] = value
+                handle_aggregation_mapping(field, aggregation)
               else
-                invalid_fields!
+                invalid_aggregation!(aggregation)
               end
             end
 
@@ -77,24 +72,26 @@ module Persistence
 
           private
 
-          def kwarg_from_kwitems(kwitems, kwarg)
-            value = kwitems[kwarg]
-            remaining = kwitems.slice(*kwitems.keys - [kwarg])
-            [value, remaining]
+          def handle_aggregation(field, aggregation)
+            aggregations[field] = { alias: nil, aggregation: aggregation }
           end
 
-          def handle_field(aggregation, field, aka = nil)
-            missing_aggregation! unless aggregation
-            aggregations[field] = { alias: aka, aggregation: aggregation }
+          def handle_aggregation_mapping(field, mapping)
+            invalid_aggregation!(mapping) unless valid_aggregation_mapping?(mapping)
+            aggregations[field] = mapping
           end
 
-          def invalid_fields!
-            msg = "Invalid fields provided to #aggregate"
-            raise(Persistence::Errors::OperationError, msg)
+          def valid_aggregation_mapping?(mapping)
+            required = [:alias, :aggregation]
+            (mapping.keys & required).size == required.size
           end
 
-          def missing_aggregation!
-            msg = "The kwarg :aggregation wasn't provided to #aggregate"
+          def clean_aggregator_configuration
+            @aggregations = {}
+          end
+
+          def invalid_aggregation!(sample)
+            msg = "Invalid fields provided to #aggregate: #{sample}"
             raise(Persistence::Errors::OperationError, msg)
           end
         end
