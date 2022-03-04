@@ -30,6 +30,8 @@ module Persistence
           #       ]
           #     >
           def group(*items, **kwitems)
+            clear_previous_configuration
+
             items.each do |item|
               case item
               when Symbol, String
@@ -87,6 +89,11 @@ module Persistence
             groupings.each_with_index do |grouping, index|
               grouping_indices[grouping[:criteria]] = index
             end
+          end
+
+          def clear_previous_configuration
+            @groupings = []
+            @grouping_indices = {}
           end
 
           def invalid_criteria!

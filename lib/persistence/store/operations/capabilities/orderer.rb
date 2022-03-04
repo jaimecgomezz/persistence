@@ -38,6 +38,8 @@ module Persistence
           #       ]
           #     >
           def order(*items, **kwitems)
+            clear_previous_configuration
+
             nulls, remaining = kwarg_from_kwitems(kwitems, :nulls)
 
             items.map do |item|
@@ -106,6 +108,11 @@ module Persistence
             orderings.each_with_index do |ordering, index|
               orderings_indices[ordering[:criteria]] = index
             end
+          end
+
+          def clear_previous_configuration
+            @orderings = []
+            @orderings_indices = {}
           end
 
           def invalid_criteria!

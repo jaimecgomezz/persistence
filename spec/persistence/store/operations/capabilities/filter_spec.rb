@@ -7,11 +7,11 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
   let(:mocker) { Class.new { include Persistence::Store::Operations::Capabilities::Filter }.new }
   let(:filters_builder) { Persistence::Store::Operations::Capabilities::Helpers::FiltersBuilder.new }
 
-  it 'exposes #where' do
-    expect(mocker).to respond_to(:where)
-  end
-
   describe '#where' do
+    it 'returns self' do
+      expect(mocker.where({ id: 1 })).to be(mocker)
+    end
+
     context 'with no arguments' do
       let(:resulting) { mocker.where }
 

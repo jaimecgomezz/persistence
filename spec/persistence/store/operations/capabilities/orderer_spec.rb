@@ -9,14 +9,13 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Orderer do
     end
 
     context 'with method being called more than once' do
-      let(:criteria) { [:created_at, :updated_at, :deleted_at] }
-      let(:resulting) { mocker.order(*criteria) }
+      let(:resulting) { mocker.order(:created_at, updated_at: { order: :asc, nulls: :last }) }
 
       it 'respects newest criteria' do
-        second_criteria = [:started_at, *criteria, :removed_at].shuffle
-        expected = second_criteria.map { |c| { criteria: c, order: :asc, nulls: nil } }
-
-        expect(resulting.order(*second_criteria).orderings).to match(expected)
+        expect(resulting.order(:deleted_at, removed_at: { order: :desc, nulls: :first }).orderings).to match([
+          { criteria: :deleted_at, order: :asc, nulls: nil },
+          { criteria: :removed_at, order: :desc, nulls: :first }
+        ])
       end
     end
 

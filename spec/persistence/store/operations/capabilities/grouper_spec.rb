@@ -9,14 +9,13 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Grouper do
     end
 
     context 'when method is called more than once' do
-      let(:criteria) { [:a, :b, :c] }
-      let(:resulting) { mocker.group(*criteria) }
+      let(:resulting) { mocker.group(:a, b: { alias: :B }) }
 
       it 'respects newest grouping criteria' do
-        second_criteria = [:x, *criteria, :y].shuffle
-        expected = second_criteria.map { |c| { criteria: c } }
-
-        expect(resulting.group(*second_criteria).groupings).to match(expected)
+        expect(resulting.group(:c, d: { alias: :D }).groupings).to match([
+          { criteria: :c },
+          { criteria: :d, alias: :D }
+        ])
       end
     end
 

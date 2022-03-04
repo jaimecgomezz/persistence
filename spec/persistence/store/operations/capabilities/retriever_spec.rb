@@ -8,7 +8,36 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Retriever do
       expect(mocker.retrieve(:id)).to be(mocker)
     end
 
-    context 'with positional argumemts' do
+    context 'with method being called more than once' do
+      let(:resulting) { mocker.retrieve(:id, name: :NAME, resource: :users) }
+
+      it 'overwrites previous configuration' do
+        expect(resulting.retrieve(
+          :email,
+            country: :CO,
+            income: {
+              alias: :IN,
+              resource: :any
+            },
+            resource: :other
+        ).retrievables).to match({
+          email: {
+            alias: nil,
+            resource: :other
+          },
+          country: {
+            alias: :CO,
+            resource: :other
+          },
+          income: {
+            alias: :IN,
+            resource: :any
+          }
+        })
+      end
+    end
+
+    context 'with positional arguments' do
       context 'being symbols/strings' do
         let(:resulting) { mocker.retrieve(:id, :name) }
 

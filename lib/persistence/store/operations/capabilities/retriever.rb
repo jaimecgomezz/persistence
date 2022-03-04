@@ -50,6 +50,8 @@ module Persistence
           #       }
           #     >
           def retrieve(*items, **kwitems)
+            clear_previous_configuration
+
             resource, remaining = kwarg_from_kwitems(kwitems, :resource)
 
             items.map do |item|
@@ -90,6 +92,10 @@ module Persistence
 
           def handle_field(resource, field, aka = nil)
             retrievables[field] = { resource: resource, alias: aka }
+          end
+
+          def clear_previous_configuration
+            @retrievables = {}
           end
 
           def invalid_fields!
