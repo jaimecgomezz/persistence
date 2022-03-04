@@ -77,7 +77,7 @@ module Persistence
           end
 
           def handle_aggregation_mapping(field, mapping)
-            invalid_aggregation!(mapping) unless valid_aggregation_mapping?(mapping)
+            invalid_aggregation!(field) unless valid_aggregation_mapping?(mapping)
             aggregations[field] = mapping
           end
 

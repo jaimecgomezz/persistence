@@ -46,7 +46,7 @@ module Persistence
               when Hash
                 handle_distinctiveness_mapping(criteria, mapping)
               else
-                invalid_distinctiveness_criteria!(mapping)
+                invalid_distinctiveness_criteria!(criteria)
               end
             end
 
