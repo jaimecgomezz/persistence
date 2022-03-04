@@ -13,7 +13,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Orderer do
 
       it 'respects newest criteria' do
         expect(resulting.order(:deleted_at, removed_at: { order: :desc, nulls: :first }).orderings).to match([
-          { criteria: :deleted_at, order: :asc, nulls: nil },
+          { criteria: :deleted_at, order: :asc },
           { criteria: :removed_at, order: :desc, nulls: :first }
         ])
       end
@@ -25,20 +25,9 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Orderer do
 
         it 'assumes a list of ordering criteria with default ordering was given' do
           expect(resulting.orderings).to match([
-            { criteria: :created_at, order: :asc, nulls: nil },
-            { criteria: :updated_at, order: :asc, nulls: nil }
+            { criteria: :created_at, order: :asc },
+            { criteria: :updated_at, order: :asc }
           ])
-        end
-
-        context 'with :nulls provided' do
-          let(:resulting) { mocker.order(:created_at, :updated_at, nulls: :last) }
-
-          it 'includes it in each criteria mapping' do
-            expect(resulting.orderings).to match([
-              { criteria: :created_at, order: :asc, nulls: :last },
-              { criteria: :updated_at, order: :asc, nulls: :last }
-            ])
-          end
         end
       end
 
@@ -55,47 +44,21 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Orderer do
 
         it 'assumes a list of criteria with custom ordering was given' do
           expect(resulting.orderings).to match([
-            { criteria: :created_at, order: :asc, nulls: nil },
-            { criteria: :updated_at, order: :desc, nulls: nil }
+            { criteria: :created_at, order: :asc },
+            { criteria: :updated_at, order: :desc }
           ])
-        end
-
-        context 'with :nulls provided' do
-          let(:resulting) { mocker.order(:created_at, updated_at: :desc, nulls: :first) }
-
-          it 'includes it in each criteria mapping' do
-            expect(resulting.orderings).to match([
-              { criteria: :created_at, order: :asc, nulls: :first },
-              { criteria: :updated_at, order: :desc, nulls: :first }
-            ])
-          end
         end
       end
 
       context 'with hashes as values' do
-        let(:deleted_at_mapping) { { order: :asc, nulls: :last } }
-        let(:resulting) { mocker.order(:created_at, updated_at: :desc, deleted_at: deleted_at_mapping) }
+        let(:resulting) { mocker.order(:created_at, updated_at: :desc, deleted_at: { order: :asc, nulls: :last }) }
 
         it 'assumes a list of criteria with custom mappings was given' do
           expect(resulting.orderings).to match([
-            { criteria: :created_at, order: :asc, nulls: nil },
-            { criteria: :updated_at, order: :desc, nulls: nil },
+            { criteria: :created_at, order: :asc },
+            { criteria: :updated_at, order: :desc },
             { criteria: :deleted_at, order: :asc, nulls: :last }
           ])
-        end
-
-        context 'with :nulls provided' do
-          let(:resulting) do
-            mocker.order(:created_at, updated_at: :desc, deleted_at: deleted_at_mapping, nulls: :first)
-          end
-
-          it 'respects custom mappings' do
-            expect(resulting.orderings).to match([
-              { criteria: :created_at, order: :asc, nulls: :first },
-              { criteria: :updated_at, order: :desc, nulls: :first },
-              { criteria: :deleted_at, order: :asc, nulls: :last }
-            ])
-          end
         end
       end
 
