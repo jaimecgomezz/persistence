@@ -5,6 +5,11 @@ module Persistence
     module Operations
       module Capabilities
         # Makes the Operation capable of being filtered by specific criteria.
+        #
+        # TODO:
+        #   - Use the kwargs syntax
+        #   - Support overwritability
+        #   - Add support for Operations as values
         module Filter
           NESTED_METHODS = %i(or and).freeze
 
