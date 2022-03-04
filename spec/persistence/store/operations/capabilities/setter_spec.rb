@@ -48,14 +48,18 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Setter do
 
     context 'with keyword arguments' do
       context 'having valid field mappings as values' do
-        let(:mapping_a) { { __value: 1, __kind: :literal } }
-        let(:mapping_b) { { __value: nil, __kind: :literal } }
-        let(:resulting) { mocker.set(a: mapping_a, b: mapping_b) }
+        let(:resulting) { mocker.set(a: { __value: 1, __kind: :literal }, b: { __value: nil, __kind: :literal }) }
 
         it 'assumes a list of fields with custom mappings was provided' do
           expect(resulting.assignments).to match({
-            a: mapping_a,
-            b: mapping_b
+            a: {
+              __value: 1,
+              __kind: :literal
+            },
+            b: {
+              __value: nil,
+              __kind: :literal
+            }
           })
         end
       end

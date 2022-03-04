@@ -6,6 +6,43 @@ module Persistence
       module Capabilities
         # Makes the Operation capable of setting values.
         module Setter
+          # Creates the @assignments instance variable that maps fields with the
+          # values that should be assigned to them. This mapping should be later
+          # understood by the Driver in order to build the assignment component
+          # of the Directive.
+          #
+          # # Handle fields with default as positional arguments
+          # Update.from(:users).where({ id: 1 }).set(:income)
+          # => #<Update
+          #       @assignments={
+          #         income: {
+          #           __value: :default,
+          #           __kind: :expression
+          #         }
+          #       }
+          #     >
+          #
+          # # Handles fields with hashes as values, as keyword arguments
+          # Update.from(:users).where({ id: 1 }).set(info: { country: 'Mexico' })
+          # => #<Update
+          #       @assignments={
+          #         info: {
+          #           __value: { country: 'Mexico' },
+          #           __kind: :literal
+          #         }
+          #       }
+          #     >
+          #
+          # # Handles custom field mappings as positional arguments
+          # Update.from(:users).where({ id: 1 }).set(information: { __value: { country: 'Mexico' }, __kind: :literal} })
+          # => #<Update
+          #       @assignments={
+          #         information: {
+          #           __value: { country: 'Mexico' },
+          #           __kind: :literal
+          #         }
+          #       }
+          #     >
           def set(*items, **kwitems)
             clear_setter_configuration
 
