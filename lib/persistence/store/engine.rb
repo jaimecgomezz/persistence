@@ -5,10 +5,10 @@ module Persistence
     # Class that acts as the proxy between the consumer (e.g. Repository) and
     # the Operation to be performed.
     class Engine
-      attr_reader :resource, :driver
+      attr_reader :source, :driver
 
-      def initialize(resource, driver:)
-        @resource = resource
+      def initialize(source, driver:)
+        @source = source
         @driver = driver
       end
 

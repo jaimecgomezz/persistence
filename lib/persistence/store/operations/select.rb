@@ -5,6 +5,7 @@ module Persistence
     module Operations
       # Responsible of building a READ Directive.
       class Select < Operation
+        include Capabilities::Sourcer
         include Capabilities::Filter
         include Capabilities::Aggregator
         include Capabilities::Retriever
