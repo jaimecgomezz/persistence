@@ -9,12 +9,12 @@ module Persistence
         include Capabilities::Aggregator
         include Capabilities::Retriever
         include Capabilities::Orderer
+        include Capabilities::Differentiator
 
         # Pending
-        include Capabilities::Requirer
-        include Capabilities::Differentiator
         include Capabilities::Grouper
         include Capabilities::Joiner
+        include Capabilities::Requirer
         include Capabilities::Paginator
         include Capabilities::Preloader
       end
