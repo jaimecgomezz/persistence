@@ -4,7 +4,15 @@ module Persistence
       module Sequel
         module Clauses
           # Class specialized in building SQL's WHERE clause.
-          class With < Clause
+          class With
+            attr_reader :operation
+
+            def initialize(operation)
+              invalid_requirer! unless valid_requirer?(operation)
+
+              @operation = operation
+            end
+
             def build
               statement = ""
 
@@ -16,9 +24,6 @@ module Persistence
               rest.each_with_object(statement) do |requirement, acc|
                 acc << ", #{format_requirement(requirement)}"
               end
-            rescue NoMethodError
-              msg = "The Operation provided doesn't implements the Requirer module"
-              raise(Persistence::Errors::DriverError, msg)
             end
 
             private
@@ -33,6 +38,16 @@ module Persistence
 
             def is_operation?(value)
               value.class.ancestors.include?(Persistence::Store::Operations::Operation)
+            end
+
+            def valid_requirer?(operation)
+              klass = Persistence::Store::Operations::Capabilities::Requirer
+              operation.class.ancestors.include?(klass)
+            end
+
+            def invalid_requirer!
+              msg = "The Operation provided doesn't implements the Requirer module"
+              raise(Persistence::Errors::DriverError, msg)
             end
           end
         end
