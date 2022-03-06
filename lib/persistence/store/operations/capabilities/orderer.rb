@@ -64,6 +64,18 @@ module Persistence
             self
           end
 
+          def reverse_existing_orderings!
+            @orderings = orderings.map do |o|
+              invalid_order_criteria!(o[:criteria]) unless valid_ordering_kind?(o[:order])
+
+              reversed = o[:order] == :asc ? :desc : :asc
+
+              o.merge({ order: reversed })
+            end
+
+            self
+          end
+
           def orderings
             @orderings ||= []
           end
@@ -71,6 +83,8 @@ module Persistence
           private
 
           def handle_order_criteria(criteria, order = :asc)
+            invalid_order_criteria!(criteria) unless valid_ordering_kind?(order)
+
             orderings.push({ criteria: criteria, order: order })
           end
 
@@ -78,6 +92,10 @@ module Persistence
             invalid_order_criteria!(criteria) unless valid_order_mapping?(mapping)
 
             orderings.push(mapping.merge({ criteria: criteria }))
+          end
+
+          def valid_ordering_kind?(order)
+            [:asc, :desc].include?(order.to_sym)
           end
 
           def valid_order_mapping?(mapping)

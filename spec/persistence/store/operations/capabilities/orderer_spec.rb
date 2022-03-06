@@ -69,4 +69,25 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Orderer do
       end
     end
   end
+
+  describe '#reverse_existing_orderings!' do
+    context 'with valid existing orderings' do
+      let(:resulting) { mocker.order(:created_at, updated_at: :desc).reverse_existing_orderings! }
+
+      it 'reverts orderings' do
+        expect(resulting.orderings).to match([
+          { criteria: :created_at, order: :desc },
+          { criteria: :updated_at, order: :asc }
+        ])
+      end
+    end
+
+    context 'with invalid existing orderings' do
+      it 'raises exception' do
+        expect do
+          mocker.order(created_at: :lol).reverse_existing_orderings!
+        end.to raise_error(Persistence::Errors::OperationError)
+      end
+    end
+  end
 end
