@@ -15,6 +15,7 @@ module Persistence
         include Capabilities::Joiner
         include Capabilities::Requirer
         include Capabilities::Paginator
+        include Capabilities::DiscardedManager
 
         # Pending
         include Capabilities::Preloader

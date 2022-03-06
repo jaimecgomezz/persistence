@@ -8,6 +8,7 @@ module Persistence
         include Capabilities::Filter
         include Capabilities::Retriever
         include Capabilities::Requirer
+        include Capabilities::DiscardedManager
       end
     end
   end

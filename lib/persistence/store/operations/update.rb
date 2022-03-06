@@ -9,6 +9,7 @@ module Persistence
         include Capabilities::Retriever
         include Capabilities::Requirer
         include Capabilities::Setter
+        include Capabilities::DiscardedManager
       end
     end
   end

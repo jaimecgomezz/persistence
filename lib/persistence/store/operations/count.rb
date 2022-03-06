@@ -6,6 +6,7 @@ module Persistence
       # Responsible of building a COUNT Directive.
       class Count < Operation
         include Capabilities::Filter
+        include Capabilities::DiscardedManager
       end
     end
   end
