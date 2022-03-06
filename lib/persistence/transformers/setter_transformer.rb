@@ -12,6 +12,8 @@ module Persistence
       end
 
       def one(result)
+        return if result.nil?
+
         entity.new.tap do |instance|
           result.each do |key, value|
             accessor = "#{key}="
@@ -23,10 +25,8 @@ module Persistence
         end
       end
 
-      def many(results, pagination)
-        transformed = results.map { |result| one(result) }
-
-        { items: transformed, _pagination: pagination }
+      def many(results)
+        results.map { |result| one(result) }
       end
     end
   end
