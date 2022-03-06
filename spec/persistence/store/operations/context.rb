@@ -80,4 +80,8 @@ RSpec.shared_context 'discard_manager' do
   it 'is capable of managing discarded results' do
     expect(mocker.class.ancestors).to include(Persistence::Store::Operations::Capabilities::DiscardedManager)
   end
+
+  it 'automatically excludes discarded results' do
+    expect(mocker.global_filters.keys).to include(Persistence::Config::DISCARD_ATTRIBUTE)
+  end
 end

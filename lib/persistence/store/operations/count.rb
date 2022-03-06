@@ -7,6 +7,11 @@ module Persistence
       class Count < Operation
         include Capabilities::Filter
         include Capabilities::DiscardedManager
+
+        def initialize(source)
+          exclude_discarded
+          super(source)
+        end
       end
     end
   end

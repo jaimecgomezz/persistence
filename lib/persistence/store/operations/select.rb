@@ -19,6 +19,11 @@ module Persistence
 
         # Pending
         include Capabilities::Preloader
+
+        def initialize(source)
+          exclude_discarded
+          super(source)
+        end
       end
     end
   end

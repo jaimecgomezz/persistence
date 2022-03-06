@@ -10,6 +10,11 @@ module Persistence
         include Capabilities::Requirer
         include Capabilities::Setter
         include Capabilities::DiscardedManager
+
+        def initialize(source)
+          exclude_discarded
+          super(source)
+        end
       end
     end
   end
