@@ -37,7 +37,7 @@ RSpec.describe Persistence::Transformers::InitializerTransformer do
         expect(transformed).to be_a(entity)
       end
 
-      it 'sets argument attributes' do
+      it "delegates setting element's attributes to entity" do
         expect(transformed.to_h).to match(one)
       end
     end
@@ -66,7 +66,7 @@ RSpec.describe Persistence::Transformers::InitializerTransformer do
       expect(transformed).to all(be_a(entity))
     end
 
-    it "sets element's attributes" do
+    it "delegates setting elements' attributes to entity" do
       expect(transformed.map(&:to_h)).to match(many)
     end
   end
