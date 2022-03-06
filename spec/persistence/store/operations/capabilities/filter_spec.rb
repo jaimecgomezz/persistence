@@ -16,7 +16,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
       let(:resulting) { mocker.where({ id: 1 }) }
 
       it 'overwrites previous configuration' do
-        expect(resulting.where({ id: 2 }).filters).to match([
+        expect(resulting.where({ id: 2 }).user_filters).to match([
           {
             __negate: false,
             __operand: :and,
@@ -39,7 +39,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
       let(:resulting) { mocker.where(filters) }
 
       it 'sets primary filters' do
-        expect(resulting.filters.first).to match({
+        expect(resulting.user_filters.first).to match({
           __negate: false,
           __operand: :and,
           __filters: filters_builder.build(filters)
@@ -52,7 +52,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
         let(:resulting) { mocker.where(filters).where.or(secondary_filters) }
 
         it 'adds secondary filters' do
-          expect(resulting.filters.last).to match({
+          expect(resulting.user_filters.last).to match({
             __negate: false,
             __operand: :or,
             __filters: filters_builder.build(secondary_filters)
@@ -72,7 +72,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
         let(:resulting) { mocker.where(filters).where.and(secondary_filters) }
 
         it 'adds secondary filters' do
-          expect(resulting.filters.last).to match({
+          expect(resulting.user_filters.last).to match({
             __negate: false,
             __operand: :and,
             __filters: filters_builder.build(secondary_filters)
@@ -97,7 +97,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
       let(:resulting) { mocker.where_not({ id: 1 }) }
 
       it 'overwrites previous configuration' do
-        expect(resulting.where_not({ id: 2 }).filters).to match([
+        expect(resulting.where_not({ id: 2 }).user_filters).to match([
           {
             __negate: true,
             __operand: :and,
@@ -120,7 +120,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
       let(:resulting) { mocker.where_not(filters) }
 
       it 'sets primary filters' do
-        expect(resulting.filters.first).to match({
+        expect(resulting.user_filters.first).to match({
           __negate: true,
           __operand: :and,
           __filters: filters_builder.build(filters)
@@ -133,7 +133,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
         let(:resulting) { mocker.where_not(filters).where_not.or(secondary_filters) }
 
         it 'adds secondary filters' do
-          expect(resulting.filters.last).to match({
+          expect(resulting.user_filters.last).to match({
             __negate: true,
             __operand: :or,
             __filters: filters_builder.build(secondary_filters)
@@ -153,7 +153,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
         let(:resulting) { mocker.where_not(filters).where_not.and(secondary_filters) }
 
         it 'adds secondary filters' do
-          expect(resulting.filters.last).to match({
+          expect(resulting.user_filters.last).to match({
             __negate: true,
             __operand: :and,
             __filters: filters_builder.build(secondary_filters)

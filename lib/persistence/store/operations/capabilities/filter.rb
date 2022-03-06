@@ -6,17 +6,19 @@ module Persistence
       module Capabilities
         # Makes the Operation capable of being filtered by specific criteria.
         module Filter
-          # Creates the @filters instance variable that contains a list of
-          # hashes that each describe a set of filters to be applied by the
-          # directive. This filters should be later understood by the Driver in
-          # order to build the filtering component of the Directive.
+          # Creates the @global_filters and the @user_filters instance
+          # variables. The former contains filters managed by the Persistence
+          # library, like the ones used to prevent discarded records from
+          # appearing in the final results, while the latter contains a list of
+          # descriptive hashes that allows the Driver to build the filtering
+          # component of the Directive.
           #
           # If no filters are provided, it proceeds rather allows the caller to
           # access nested methods in order to further define filters.
           #
           # Select.where({ id: 1 })
           # => #<Select
-          #       @filters=[
+          #       @user_filters=[
           #         {
           #           __negate: false,
           #           __operand: :and,
@@ -39,7 +41,7 @@ module Persistence
           #
           # Select.where_not({ id: 1 })
           # => #<Select
-          #       @filters=[
+          #       @user_filters=[
           #         {
           #           __negate: true,
           #           __operand: :and,
@@ -57,8 +59,12 @@ module Persistence
             self
           end
 
-          def filters
-            @filters ||= []
+          def user_filters
+            @user_filters ||= []
+          end
+
+          def global_filters
+            @global_filters ||= {}
           end
 
           private
@@ -68,19 +74,19 @@ module Persistence
 
             clear_filter_configuration
 
-            invalid_filter_usage! unless filters.empty?
+            invalid_filter_usage! unless user_filters.empty?
 
             add_filters(hash, :and)
           end
 
           def handle_secondary_filters(hash, operand)
-            invalid_filter_usage! if filters.empty?
+            invalid_filter_usage! if user_filters.empty?
 
             add_filters(hash, operand)
           end
 
           def add_filters(hash, operand)
-            filters.push({
+            user_filters.push({
               __operand: operand,
               __negate: filter_state[:negate],
               __filters: filters_builder.build(hash)
@@ -115,7 +121,7 @@ module Persistence
           end
 
           def clear_filter_configuration
-            @filters = []
+            @user_filters = []
           end
 
           def invalid_filter_usage!
