@@ -3,6 +3,6 @@
 module Persistence
   # Includes constants used by the library.
   module Config
-    PageSize = 10
+    PAGE_SIZE = 10
   end
 end

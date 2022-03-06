@@ -16,7 +16,7 @@ module Persistence
             self
           end
 
-          def limit(n = Persistence::Config::PageSize)
+          def limit(n = Persistence::Config::PAGE_SIZE)
             invalid_pagination_number!(:limit, n) unless valid_pagination_number?(n)
 
             pagination[:limit] = n
@@ -24,7 +24,7 @@ module Persistence
             self
           end
 
-          def first(n = Persistence::Config::PageSize)
+          def first(n = Persistence::Config::PAGE_SIZE)
             invalid_pagination_number!(:first, n) unless valid_pagination_number?(n)
             pagination_requires!(:order) if orderings.empty?
 
@@ -36,7 +36,7 @@ module Persistence
             self
           end
 
-          def last(n = Persistence::Config::PageSize)
+          def last(n = Persistence::Config::PAGE_SIZE)
             invalid_pagination_number!(:last, n) unless valid_pagination_number?(n)
             pagination_requires!(:order) if orderings.empty?
 
@@ -67,7 +67,7 @@ module Persistence
           private
 
           def default_pagination
-            { offset: 0, limit: Persistence::Config::PageSize }
+            { offset: 0, limit: Persistence::Config::PAGE_SIZE }
           end
 
           def pagination_missing?(attribute)

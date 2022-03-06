@@ -23,7 +23,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Paginator do
       let(:resulting) { mocker.limit }
 
       it 'assigns default limit' do
-        expect(resulting.pagination).to include({ limit: Persistence::Config::PageSize })
+        expect(resulting.pagination).to include({ limit: Persistence::Config::PAGE_SIZE })
       end
     end
 
@@ -101,7 +101,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Paginator do
       let(:resulting) { prepared_mocker.first }
 
       it 'uses default pagination configuration' do
-        expect(resulting.pagination).to include({ offset: 0, limit: Persistence::Config::PageSize })
+        expect(resulting.pagination).to include({ offset: 0, limit: Persistence::Config::PAGE_SIZE })
       end
     end
 
@@ -152,7 +152,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Paginator do
       end
 
       it 'uses default pagination configuration' do
-        expect(resulting.pagination).to include({ offset: 0, limit: Persistence::Config::PageSize })
+        expect(resulting.pagination).to include({ offset: 0, limit: Persistence::Config::PAGE_SIZE })
       end
     end
 
@@ -203,7 +203,7 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Paginator do
       let(:resulting) { mocker.paginate }
 
       it 'assigns default pagination configuration' do
-        expect(resulting.pagination).to include({ offset: 0, limit: Persistence::Config::PageSize })
+        expect(resulting.pagination).to include({ offset: 0, limit: Persistence::Config::PAGE_SIZE })
       end
     end
 
