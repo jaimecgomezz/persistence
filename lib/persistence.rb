@@ -4,6 +4,7 @@
 module Persistence
 end
 
+require_relative 'persistence/config'
 require_relative 'persistence/store'
 require_relative 'persistence/transformers'
 require_relative 'persistence/repository'
