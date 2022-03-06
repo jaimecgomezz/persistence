@@ -4,7 +4,7 @@ module Persistence
   # Abstract layer that hides implementation details related to the persistence
   # layer. It has 2 main responsibilities:
   #   - Querying the DB through the Engine
-  #   - Transform Engine's result to expecte format via the Tranformer
+  #   - Transform Engine's result into the expected format using the Tranformer
   #
   # Example
   #
@@ -30,131 +30,73 @@ module Persistence
     end
 
     def all
-      items, pagination = engine.select.paginate.perform
-
-      transformer.many(items, pagination)
+      transformer.many(engine.select.perform)
     end
 
     def first
-      item = engine.select.limit(1).perform
-      return unless item
-
-      transformer.one(item)
+      transformer.one(engine.select.limit(1).perform)
     end
 
     def last
-      item = engine.select.order(:asc).limit(1).perform
-      return unless item
-
-      transformer.one(item)
+      transformer.one(engine.select.order(:desc).limit(1).perform)
     end
 
     def find(id)
-      item = engine.select.where({ id: id }).limit(1).perform
-      return unless item
-
-      transformer.one(item)
+      transformer.one(engine.select.where({ id: id }).limit(1).perform)
     end
 
-    def find_many(ids, pagination = {})
-      items, pagination = engine.select.where({ id: ids }).paginate(pagination).perform
-
-      transformer.many(items, pagination)
+    def find_many(ids)
+      transformer.many(engine.select.where({ id: ids }).perform)
     end
 
     def find_discarded(id)
-      item = engine.select.include_discarded.where({ id: id }).limit(1).perform
-
-      return unless item
-
-      transformer.one(item)
+      transformer.one(engine.select.include_discarded.where({ id: id }).limit(1).perform)
     end
 
-    def find_many_discarded(ids, pagination = {})
-      items, pagination = engine.select.include_discarded.where({ id: ids }).paginate(pagination).perform
-
-      transformer.many(items, pagination)
+    def find_many_discarded(ids)
+      transformer.many(engine.select.include_discarded.where({ id: ids }).perform)
     end
 
     def find_where(filters)
-      item = engine.select.where(filters).limit(1).perform
-
-      return unless item
-
-      transformer.one(item)
+      transformer.one(engine.select.where(filters).limit(1).perform)
     end
 
-    def find_many_where(filters, pagination = {})
-      items, pagination = engine.select.where(filters).paginate(pagination).perform
-
-      transformer.many(items, pagination)
+    def find_many_where(filters)
+      transformer.many(engine.select.where(filters).perform)
     end
 
     def create(input)
-      id = engine.ceate(input).perform
-
-      return unless id
-
-      find(id)
+      transformer.one(engine.insert.set(input).perform)
     end
 
     def bulk(inputs)
-      ids = inputs.map { |input| create(input) }.compact
-
-      find_many(ids)
+      inputs.map do |input|
+        create(input)
+      end.compact
     end
 
     def update(id, input)
-      id = engine.update.where({ id: id }).to(input).perform
-
-      return unless id
-
-      find(id)
+      tranformer.one(engine.update.where({ id: id }).set(input).perform)
     end
 
     def update_where(filters, input)
-      ids = engine.update.where(filters).to(input).perform
-
-      find_many(ids)
+      transformer.many(engine.update.where(filters).set(input).perform)
     end
 
     def destroy(id)
-      item = engine.select.where({ id: id }).limit(1).perform
-
-      return unless item && engine.delete.where({ id: id }).perform
-
-      transformer.one(item)
+      transformer.one(engine.delete.include_discarded.where({ id: id }).perform)
     end
 
     def destroy_where(filters)
-      items, pagination = engine.select.where(filters).perform
-
-      ids = engine.delete.where(filters)
-
-      destroyed = items.select { |item| ids.include?(item[:id]) }
-
-      transformer.many(destroyed, pagination)
+      transformer.many(engine.delete.include_discarded.where(filters).perform)
     end
 
     def discard(id)
-      id = engine.update.where(id).to({ deleted_at: Time.now }).perform
-
-      return unless id
-
-      find_discarded(id)
+      transformer.one(engine.discard.where({ id: id }).perform)
     end
 
     def discard_where(filters)
-      ids = engine.update.where(filters).to({ deleted_at: Time.now }).perform
-
-      find_many_discarded(ids)
-    end
-
-    private
-
-    def raise_no_engine!
-      msg = "No ENGINE defined for #{self}"
-      raise(Persistence::Errors::RepositoryError, msg)
+      tranformer.many(engine.discard.where(filters).perform)
     end
   end
 end
