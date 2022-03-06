@@ -8,4 +8,5 @@ RSpec.describe Persistence::Store::Operations::Delete do
   include_context 'filter'
   include_context 'retriever'
   include_context 'requirer'
+  include_context 'discard_manager'
 end

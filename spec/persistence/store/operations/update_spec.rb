@@ -9,4 +9,5 @@ RSpec.describe Persistence::Store::Operations::Update do
   include_context 'retriever'
   include_context 'requirer'
   include_context 'setter'
+  include_context 'discard_manager'
 end

@@ -16,4 +16,5 @@ RSpec.describe Persistence::Store::Operations::Select do
   include_context 'requirer'
   include_context 'paginator'
   include_context 'preloader'
+  include_context 'discard_manager'
 end

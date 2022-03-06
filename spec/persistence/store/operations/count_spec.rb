@@ -6,4 +6,5 @@ RSpec.describe Persistence::Store::Operations::Count do
   let(:mocker) { described_class.new(:a) }
 
   include_context 'filter'
+  include_context 'discard_manager'
 end
