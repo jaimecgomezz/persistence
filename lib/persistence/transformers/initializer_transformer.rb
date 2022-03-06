@@ -6,21 +6,23 @@ module Persistence
     # entity itself is capable of dealing with the attributes after the
     # initialization.
     class InitializerTransformer
+      attr_reader :entity
+
       def initialize(entity)
         @entity = entity
       end
 
       def one(result)
+        return if result.nil?
+
         entity.new(result)
       rescue ArgumentError
         msg = "#{self.class}: #{entity} doesn't expects attributes on .new"
         raise(Persistence::Errors::TransformerError, msg)
       end
 
-      def many(results, pagination)
-        transformed = results.map { |result| one(result) }
-
-        { items: transformed, _pagination: pagination }
+      def many(results)
+        results.map { |result| one(result) }
       end
     end
   end
