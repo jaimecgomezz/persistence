@@ -15,3 +15,4 @@ end
 
 require_relative 'clauses/clause'
 require_relative 'clauses/with'
+require_relative 'clauses/select'
