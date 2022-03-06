@@ -9,8 +9,8 @@ module Persistence
         result
       end
 
-      def many(results, pagination)
-        { items: results, _pagination: pagination }
+      def many(results)
+        results
       end
     end
   end
