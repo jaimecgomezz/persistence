@@ -7,7 +7,9 @@ module Persistence
         # Makes the Operation capable of preloading associations into the final
         # result.
         module Preloader
-          def preload(associations); end
+          # TODO: implement
+          def preload(associations)
+          end
         end
       end
     end
