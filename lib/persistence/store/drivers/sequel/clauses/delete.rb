@@ -5,23 +5,17 @@ module Persistence
         module Clauses
           # Class specialized in building SQL's DELETE clause.
           class Delete
-            attr_reader :operation
+            attr_reader :operation, :params
 
-            def initialize(operation)
-              validate_source!(operation)
+            def initialize(operation, params)
               @operation = operation
+              @params = params
             end
 
             def build
-              "DELETE FROM ONLY #{operation.source}"
-            end
-
-            private
-
-            def validate_source!(operation)
-              return if operation.respond_to?(:source) && operation.source
-
-              msg = "The Operation doesn't has a source defined"
+              ["DELETE FROM ONLY #{operation.source}", params]
+            rescue NoMethodError
+              msg = "The Operation doesn't has a @source defined"
               raise(Persistence::Errors::DriverError, msg)
             end
           end

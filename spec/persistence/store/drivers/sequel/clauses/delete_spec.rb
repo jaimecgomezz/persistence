@@ -2,32 +2,29 @@
 
 RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Delete do
   let(:operation) { Persistence::Store::Operations::Delete.new(:a) }
+  let(:mocker) { described_class.new(operation, {}) }
 
   context '.new' do
-    it 'expects operation' do
-      expect(described_class).to respond_to(:new).with(1).argument
-    end
-
-    context 'with Operation having a source' do
-      it 'initializes class' do
-        expect(described_class.new(operation)).to be_a(described_class)
-      end
-    end
-
-    context 'with Operation not having a source' do
-      let(:operation) { Class.new.new }
-
-      it 'raises exception' do
-        expect { described_class.new(operation) }.to raise_error(Persistence::Errors::DriverError)
-      end
+    it 'expects operation and params' do
+      expect(described_class).to respond_to(:new).with(2).argument
     end
   end
 
   context '#build' do
-    let(:result) { described_class.new(operation).build }
+    let(:result) { mocker.build }
 
     it 'builds clause' do
-      expect(result).to eq("DELETE FROM ONLY a")
+      params = {}
+      statement = "DELETE FROM ONLY a"
+      expect(result).to match([statement, params])
+    end
+
+    context 'with Operation not having a @source' do
+      let(:operation) { Class.new.new }
+
+      it 'raises exception' do
+        expect { mocker.build }.to raise_error(Persistence::Errors::DriverError)
+      end
     end
   end
 end
