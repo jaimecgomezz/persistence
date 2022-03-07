@@ -87,7 +87,7 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Select do
           sc = "SUM(tc.c::UUID) AS C"
           sd = "MAX(td.d::UUID[]) AS D"
           se = "MIN(a.e::CUSTOM)"
-          distinctiveness = "DISTINCT ON (id, email) "
+          distinctiveness = "DISTINCT id, email "
           joiner = ", "
 
           statement = ["SELECT ", distinctiveness, sa, joiner, sb, joiner, sc, joiner, sd, joiner, se].join

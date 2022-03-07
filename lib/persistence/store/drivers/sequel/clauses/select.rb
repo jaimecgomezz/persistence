@@ -80,12 +80,12 @@ module Persistence
               return stmnt if operation.distincts.empty?
 
               first, *rest = operation.distincts
-              stmnt << "DISTINCT ON ("
+              stmnt << "DISTINCT "
               stmnt << "#{first[:criteria]}"
               stmnt << rest.each_with_object("") do |distinct, acc|
                 acc << ", #{distinct[:criteria]}"
               end
-              stmnt << ") "
+              stmnt << " "
             end
 
             def format_retrievable(retrievable)
