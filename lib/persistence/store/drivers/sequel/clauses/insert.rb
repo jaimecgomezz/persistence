@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Persistence
   module Store
     module Drivers
@@ -7,32 +9,29 @@ module Persistence
           class Insert
             EXPRESSIONS = { default: 'DEFAULT' }
 
-            attr_reader :operation
+            attr_reader :operation, :params
 
-            def initialize(operation)
+            def initialize(operation, params)
               @operation = operation
+              @params = params
             end
 
             def build
-              statement = "INSERT INTO #{operation.source}"
+              base = "INSERT INTO #{operation.source}"
 
-              return statement if operation.assignments.empty?
+              return [base, params] if (assignments = operation.assignments).empty?
 
-              first, *rest = operation.assignments
-              statement << " (#{format_assignment(first)}"
-              statement << rest.each_with_object("") do |assignment, acc|
-                acc << ", #{format_assignment(assignment)}"
-              end
-              statement << ")"
+              first, *rest = assignments
+              fields_formatted = rest.each_with_object([first[:__field]]) do |assignment, acc|
+                acc << assignment[:__field]
+              end.join(", ")
+
+              [[base, ["(", fields_formatted, ")"].join].join(" "), params]
             rescue NoMethodError => e
               raise_capability_error!(e.name)
             end
 
             private
-
-            def format_assignment(assignment)
-              assignment[:__field].to_s
-            end
 
             def raise_capability_error!(method)
               msg = case method

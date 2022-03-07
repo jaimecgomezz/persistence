@@ -1,32 +1,32 @@
 # frozen_string_literal: true
 
 RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Insert do
-  let(:mocker) { described_class.new(operation) }
+  let(:base) { Persistence::Store::Operations::Insert.new(:a) }
+  let(:mocker) { described_class.new(operation, {}) }
 
   describe '.new' do
-    it 'expects operation' do
-      expect(described_class).to respond_to(:new).with(1).argument
+    it 'expects operation and params' do
+      expect(described_class).to respond_to(:new).with(2).argument
     end
   end
 
   describe '#build' do
+    let(:operation) { base }
     let(:result) { mocker.build }
 
-    context 'with valid operation provided' do
-      let(:operation) { Persistence::Store::Operations::Insert.new(:a) }
+    it 'builds clause' do
+      params = {}
+      statement = "INSERT INTO a"
+      expect(result).to eq([statement, params])
+    end
 
-      it 'builds clause' do
-        expect(result).to eq("INSERT INTO a")
-      end
+    context 'with operation defining assignments' do
+      let(:operation) { base.set(:id, email: 'a@mail.com', meta: { id: 1 }) }
 
-      context 'with operation defining assignments' do
-        let(:operation) do
-          Persistence::Store::Operations::Insert.new(:a).set(:id, email: 'a@mail.com', meta: { id: 1 })
-        end
-
-        it 'includes them in the clause' do
-          expect(result).to eq("INSERT INTO a (id, email, meta)")
-        end
+      it 'includes them in the clause' do
+        params = {}
+        statement = "INSERT INTO a (id, email, meta)"
+        expect(result).to match([statement, params])
       end
     end
 
