@@ -6,26 +6,20 @@ module Persistence
       module Sequel
         module Clauses
           class Offset
-            attr_reader :operation
+            attr_reader :operation, :params
 
-            def initialize(operation)
-              validate_paginator!(operation)
+            def initialize(operation, params)
               @operation = operation
+              @params = params
             end
 
             def build
               offset = operation.pagination[:offset]
-              return "" unless offset
 
-              "OFFSET #{offset}"
-            end
+              return ["", params] unless offset
 
-            private
-
-            def validate_paginator!(operation)
-              klass = Persistence::Store::Operations::Capabilities::Paginator
-              return if operation.class.ancestors.include?(klass)
-
+              ["OFFSET #{offset}", params]
+            rescue NoMethodError
               msg = "The Operation isn't a Paginator"
               raise(Persistence::Errors::DriverError, msg)
             end
