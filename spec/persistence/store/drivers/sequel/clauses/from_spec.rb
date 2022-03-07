@@ -1,42 +1,29 @@
 # frozen_string_literal: true
 
 RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::From do
-  let(:operation) { Persistence::Store::Operations::Select.new(:a) }
+  let(:base) { Persistence::Store::Operations::Select.new(:a) }
+  let(:mocker) { described_class.new(operation, {}) }
 
   context '.new' do
-    it 'expects operation' do
-      expect(described_class).to respond_to(:new).with(1).argument
-    end
-
-    context 'with Operation having a source' do
-      it 'initializes class' do
-        expect(described_class.new(operation)).to be_a(described_class)
-      end
-    end
-
-    context 'with Operation not having a source' do
-      let(:operation) { Class.new.new }
-
-      it 'raises exception' do
-        expect { described_class.new(operation) }.to raise_error(Persistence::Errors::DriverError)
-      end
+    it 'expects operation and params' do
+      expect(described_class).to respond_to(:new).with(2).argument
     end
   end
 
   context '#build' do
-    let(:result) { described_class.new(operation.join(joins)).build }
+    let(:result) { mocker.build }
 
     context 'with empty joins' do
-      let(:joins) { {} }
+      let(:operation) { base }
 
       it 'returns empty string' do
-        expect(result).to eq("FROM a")
+        expect(result).to eq(["FROM a", {}])
       end
     end
 
     context 'with non-empty joins' do
-      let(:joins) do
-        {
+      let(:operation) do
+        base.join(
           b: {
             kind: :lj,
             left: :id,
@@ -52,7 +39,7 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::From do
             left: 'id',
             right: :a_id
           }
-        }
+        )
       end
 
       it 'build clause' do
@@ -63,7 +50,15 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::From do
 
         statement = ["FROM ", "a ", sa, joiner, sb, joiner, sc].join
 
-        expect(result).to eq(statement)
+        expect(result).to eq([statement, {}])
+      end
+    end
+
+    context 'with Operation not having a source' do
+      let(:operation) { Class.new.new }
+
+      it 'raises exception' do
+        expect { mocker.build }.to raise_error(Persistence::Errors::DriverError)
       end
     end
   end

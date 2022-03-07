@@ -12,26 +12,29 @@ module Persistence
               roj: 'RIGHT OUTER JOIN',
               fj: 'FULL JOIN',
               foj: 'FULL OUTER JOIN'
-            }
+            }.freeze
 
-            attr_reader :operation
+            attr_reader :operation, :params
 
-            def initialize(operation)
-              invalid_operation! unless valid_operation?(operation)
-
+            def initialize(operation, params)
               @operation = operation
+              @params = params
             end
 
             def build
-              statement = "FROM #{operation.source}"
+              base = "FROM #{operation.source}"
 
-              return statement if (joins = operation.joins.to_a).empty?
+              return [base, params] if (joins = operation.joins.to_a).empty?
 
               first, *rest = joins
-              statement << " #{format_join(first)}"
-              rest.each_with_object(statement) do |join, acc|
-                acc << " #{format_join(join)}"
-              end
+              joins_formatted = rest.each_with_object([format_join(first)]) do |join, acc|
+                acc << format_join(join)
+              end.join(" ")
+
+              [[base, joins_formatted].join(" "), params]
+            rescue NoMethodError
+              msg = "The Operation doesn't has a @source"
+              raise(Persistence::Errors::DriverError, msg)
             end
 
             private
@@ -44,15 +47,6 @@ module Persistence
               join_match = "#{operation.source}.#{hash[:left]} = #{name}.#{hash[:right]}"
 
               "#{join_kind} ON #{join_match}"
-            end
-
-            def valid_operation?(operation)
-              operation.respond_to?(:source) && operation.source
-            end
-
-            def invalid_operation!
-              msg = "The Operation doesn't has source"
-              raise(Persistence::Errors::DriverError, msg)
             end
           end
         end
