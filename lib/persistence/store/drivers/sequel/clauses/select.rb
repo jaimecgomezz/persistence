@@ -24,6 +24,29 @@ module Persistence
               xmlagg: 'XMLAGG'
             }
 
+            CASTS = {
+              boolean: 'BOOLEAN',
+              booleans: 'BOOLEAN[]',
+              char: 'CHAR',
+              chars: 'CHAR[]',
+              varchar: 'VARCHAR',
+              varchars: 'VARCHAR[]',
+              date: 'DATE',
+              dates: 'DATE[]',
+              time: 'TIME',
+              times: 'TIME[]',
+              timestamp: 'TIMESTAMP',
+              timestamps: 'TIMESTAMPS[]',
+              interval: 'INTERVAL',
+              intervals: 'INTERVAL[]',
+              uuid: 'UUID',
+              uuids: 'UUID[]',
+              json: 'JSON',
+              jsons: 'JSON[]',
+              jsonb: 'JSONB',
+              jsonbs: 'JSONB[]'
+            }
+
             attr_reader :operation
 
             def initialize(operation)
@@ -50,21 +73,31 @@ module Persistence
               name, hash = retrievable
 
               field = format_field(name, hash[:resource])
-              aggregated = format_aggregation(field, hash[:aggregation])
+              casted = format_cast(field, hash[:cast])
+              aggregated = format_aggregation(casted, hash[:aggregation])
               format_alias(aggregated, hash[:alias])
             end
 
             def format_field(name, resource)
-              return name unless resource
+              resource ||= operation.source
 
               "#{resource}.#{name}"
             end
 
-            def format_aggregation(field, aggregation)
-              agg = AGGREGATIONS[aggregation] || aggregation
-              return field unless agg
+            def format_cast(field, cast)
+              return field unless cast
 
-              "#{agg}(#{field})"
+              cast = CASTS[cast.to_sym] || cast
+
+              "#{field}::#{cast}"
+            end
+
+            def format_aggregation(field, aggregation)
+              return field unless aggregation
+
+              aggregation = AGGREGATIONS[aggregation.to_sym] || aggregation
+
+              "#{aggregation}(#{field})"
             end
 
             def format_alias(field, aka)

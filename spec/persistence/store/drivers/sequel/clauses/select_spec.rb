@@ -48,17 +48,20 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Select do
           c: {
             resource: :tc,
             alias: 'C',
-            aggregation: :sum
+            aggregation: :sum,
+            cast: :uuid
           },
           d: {
             resource: 'td',
             alias: :D,
-            aggregation: 'MAX'
+            aggregation: 'MAX',
+            cast: 'uuids'
           },
           e: {
             resource: nil,
             alias: nil,
-            aggregation: 'MIN'
+            aggregation: 'MIN',
+            cast: 'CUSTOM'
           }
         }
       end
@@ -66,9 +69,9 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Select do
       it 'build clause' do
         sa = "ta.a AS A"
         sb = "tb.b AS B"
-        sc = "SUM(tc.c) AS C"
-        sd = "MAX(td.d) AS D"
-        se = "MIN(e)"
+        sc = "SUM(tc.c::UUID) AS C"
+        sd = "MAX(td.d::UUID[]) AS D"
+        se = "MIN(a.e::CUSTOM)"
         joiner = ", "
 
         statement = ["SELECT ", sa, joiner, sb, joiner, sc, joiner, sd, joiner, se].join
