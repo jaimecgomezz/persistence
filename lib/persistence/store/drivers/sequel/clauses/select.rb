@@ -80,7 +80,7 @@ module Persistence
               return stmnt if operation.distincts.empty?
 
               first, *rest = operation.distincts
-              stmnt << "DISTINCT ("
+              stmnt << "DISTINCT ON ("
               stmnt << "#{first[:criteria]}"
               stmnt << rest.each_with_object("") do |distinct, acc|
                 acc << ", #{distinct[:criteria]}"
