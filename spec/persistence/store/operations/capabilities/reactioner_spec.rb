@@ -5,64 +5,59 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Reactioner do
 
   describe '#react' do
     it 'returns self' do
-      expect(mocker.react(a: :b)).to be(mocker)
+      expect(mocker.react(conflicting: :a, action: :nothing)).to be(mocker)
     end
 
     context 'when it is called multiple times' do
-      let(:resulting) { mocker.react(a: :b) }
+      let(:resulting) { mocker.react(conflicting: :a, action: :nothing) }
 
       it 'overwrites previous configuration' do
-        expect(resulting.react(c: :d).reactions).to match({
-          c: {
-            action: :d,
-            constraint: :c
-          }
+        expect(resulting.react(conflicting: :b, action: :update).reaction).to match({
+          conflicting: :b,
+          action: :update,
+          using: {}
         })
       end
     end
 
-    context 'with keyword arguments' do
-      context 'having symbols/strings as their values' do
-        let(:resulting) { mocker.react(a: :noting, b: :update) }
+    context ':conflicting' do
+      let(:resulting) { mocker.react(conflicting: conflicting, action: :nothing) }
 
-        it 'assumes a list of events with their reactions was provided' do
-          expect(resulting.reactions).to match({
-            a: {
-              action: :noting,
-              constraint: :a
-            },
-            b: {
-              action: :update,
-              constraint: :b
-            }
-          })
+      context 'being a symbol/string' do
+        let(:conflicting) { :a }
+
+        it 'assumes a constraint was provided' do
+          expect(resulting.reaction).to include({ conflicting: conflicting })
         end
       end
 
-      context 'having hashes as their values' do
-        context 'with hashes being valid reactions mappings' do
-          let(:resulting) do
-            mocker.react(a: { action: :nothing, constraint: :A }, b: { action: :update, constraint: :id })
-          end
+      context 'being a list' do
+        let(:conflicting) { [:a, :b] }
 
-          it 'assumes a list of events with custom reaction mappings was provided' do
-            expect(resulting.reactions).to match({
-              a: {
-                action: :nothing,
-                constraint: :A
-              },
-              b: {
-                action: :update,
-                constraint: :id
-              }
-            })
-          end
+        it 'assumes a list of conflictive fields was provided' do
+          expect(resulting.reaction).to include({ conflicting: conflicting })
         end
+      end
 
-        context 'with hashes being invalid reactions mappings' do
-          it 'raises exception' do
-            expect { mocker.react(a: {}) }.to raise_error(Persistence::Errors::OperationError)
-          end
+      context 'being any other data type' do
+        it 'raises exception' do
+          expect { mocker.react(conflicting: 1, action: :nothing) }.to raise_error(Persistence::Errors::OperationError)
+        end
+      end
+    end
+
+    context ':action' do
+      let(:resulting) { mocker.react(conflicting: :a, action: :update) }
+
+      context 'being a symbol/string' do
+        it 'assumes a valid action was provided' do
+          expect(resulting.reaction).to include({ action: :update })
+        end
+      end
+
+      context 'being any other data type' do
+        it 'raises exception' do
+          expect { mocker.react(conflicting: :a, action: 1) }.to raise_error(Persistence::Errors::OperationError)
         end
       end
     end

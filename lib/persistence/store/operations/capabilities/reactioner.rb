@@ -6,80 +6,68 @@ module Persistence
       module Capabilities
         # Makes the operation capable of reacting to events during execution.
         module Reactioner
-          # Creates the @reactions instance variable that maps events to
-          # descriptive mappings that define how to react to said events. This
-          # mappings should later be understood by the driver in order to build
-          # query's reaction component.
+          # Creates the @reaction instance variable, which describes how the
+          # Operation should react when facing an event. This hash should later
+          # be understood by the Driver in order to build the reacting
+          # component of the Directive.
           #
-          # # Handle event-reaction pairs as keyword arguments
-          # Insert.resource(:users).set(id: 1).react(id: :noting)
+          # Further details on how to use this mechanism should be provided by
+          # the Driver.
+          #
+          # Insert.set(id: 1).react(
+          #   conflicting: :unique_id_constraint,
+          #   action: :update,
+          #   using: {
+          #     id: 1
+          #   }
+          # )
           # => #<Insert
-          #       @reactions={
-          #         id: {
-          #           action: :nothing,
-          #           constraint: :id
+          #       @reaction={
+          #         confliction: :unique_id_constraint,
+          #         action: :update,
+          #         using: {
+          #           id: 2
           #         }
           #       }
           #     >
-          #
-          # # Handle events with custom reaction mappings as keyword arguments
-          # Insert
-          #   .resource(:users)
-          #   .set(id: 2, email: 'existing@mail.com')
-          #   .react(email: { action: :nothing, constraint: :unique_email })
-          # => #<Insert
-          #       @reactions={
-          #         email: {
-          #           action: :nothing,
-          #           constraint: :unique_email
-          #         }
-          #       }
-          #     >
-          def react(**kwitems)
+          def react(conflicting:, action:, using: {})
             clean_reactioner_configuration
 
-            kwitems.each do |event, reaction|
-              case reaction
-              when Symbol, String
-                handle_reaction(event, reaction)
-              when Hash
-                handle_reaction_mapping(event, reaction)
-              else
-                invalid_reaction!(reaction)
-              end
-            end
+            handle_conflicting!(conflicting)
+            handle_action!(action)
+            reaction[:using] = using
 
             self
           end
 
-          def reactions
-            @reactions ||= {}
+          def reaction
+            @reaction ||= { conflicting: nil, action: nil, using: {} }
           end
 
           private
 
-          def handle_reaction(event, reaction)
-            reactions[event] = { action: reaction, constraint: event }
+          def handle_conflicting!(conflicting)
+            case conflicting
+            when Symbol, String, Array
+              reaction[:conflicting] = conflicting
+            else
+              msg = "Invalid :conflicting provided to #react"
+              raise(Persistence::Errors::OperationError, msg)
+            end
           end
 
-          def handle_reaction_mapping(event, mapping)
-            invalid_reaction!(mapping) unless valid_reaction_custom_mapping?(mapping)
-
-            reactions[event] = mapping
-          end
-
-          def valid_reaction_custom_mapping?(mapping)
-            required = [:action, :constraint]
-            (mapping.keys & required).size == required.size
+          def handle_action!(action)
+            case action
+            when Symbol, String
+              reaction[:action] = action
+            else
+              msg = "Invalid :action provided to #react"
+              raise(Persistence::Errors::OperationError, msg)
+            end
           end
 
           def clean_reactioner_configuration
-            @reactions = {}
-          end
-
-          def invalid_reaction!(sample)
-            msg = "Invalid reaction mapping provided to #react: #{sample}"
-            raise(Persistence::Errors::OperationError, msg)
+            @reaction = { conflicting: nil, action: nil, using: {} }
           end
         end
       end
