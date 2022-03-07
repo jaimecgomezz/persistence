@@ -5,6 +5,7 @@ module Persistence
     module Drivers
       module Sequel
         module Clauses
+          # Class specialized in building SQL's LIMIT clause.
           class Limit
             attr_reader :operation, :params
 

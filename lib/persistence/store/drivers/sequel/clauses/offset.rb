@@ -5,6 +5,7 @@ module Persistence
     module Drivers
       module Sequel
         module Clauses
+          # Class specialized in building SQL's OFFSET clause.
           class Offset
             attr_reader :operation, :params
 
