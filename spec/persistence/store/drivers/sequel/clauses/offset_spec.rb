@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Limit do
+RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Offset do
   let(:operation) { Persistence::Store::Operations::Select.new(:a) }
 
   context '.new' do
@@ -24,7 +24,7 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Limit do
   end
 
   context '#build' do
-    context 'with unset limit' do
+    context 'with unset offset' do
       let(:result) { described_class.new(operation).build }
 
       it 'returns empty string' do
@@ -32,11 +32,11 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Limit do
       end
     end
 
-    context 'with set limit' do
-      let(:result) { described_class.new(operation.limit(10)).build }
+    context 'with set offset' do
+      let(:result) { described_class.new(operation.offset(10)).build }
 
       it 'builds clause' do
-        expect(result).to eq("LIMIT 10")
+        expect(result).to eq("OFFSET 10")
       end
     end
   end
