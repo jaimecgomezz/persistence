@@ -5,35 +5,23 @@ module Persistence
         module Clauses
           # Class that specializes in building SQL's GROUP clause.
           class Group
-            attr_reader :operation
+            attr_reader :operation, :params
 
-            def initialize(operation)
-              validate_grouper!(operation)
+            def initialize(operation, params)
               @operation = operation
+              @params = params
             end
 
             def build
-              statement = ""
+              return ["", params] if (groupings = operation.groupings).empty?
 
-              return statement if operation.groupings.empty?
+              first, *rest = groupings
+              groups_formatted = rest.each_with_object([first[:criteria]]) do |grouping, acc|
+                acc << grouping[:criteria]
+              end.join(", ")
 
-              first, *rest = operation.groupings
-              statement << "GROUP BY #{format_grouping(first)}"
-              rest.each_with_object(statement) do |grouping, acc|
-                acc << ", #{format_grouping(grouping)}"
-              end
-            end
-
-            private
-
-            def format_grouping(grouping)
-              grouping[:criteria]
-            end
-
-            def validate_grouper!(operation)
-              klass = Persistence::Store::Operations::Capabilities::Grouper
-              return if operation.class.ancestors.include?(klass)
-
+              [["GROUP BY", groups_formatted].join(" "), params]
+            rescue NoMethodError
               msg = "The Operation provided isn't a Grouper"
               raise(Persistence::Errors::DriverError, msg)
             end
