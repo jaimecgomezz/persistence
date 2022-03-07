@@ -12,12 +12,13 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Setter do
       let(:resulting) { mocker.set(:a) }
 
       it 'overwrites previous configuration' do
-        expect(resulting.set(:b).assignments).to match({
-          b: {
+        expect(resulting.set(:b).assignments).to match([
+          {
+            __field: :b,
             __value: :default,
             __kind: :expression
           }
-        })
+        ])
       end
     end
 
@@ -26,16 +27,18 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Setter do
         let(:resulting) { mocker.set(:a, :b) }
 
         it 'assumes a list of fields with default values was provided' do
-          expect(resulting.assignments).to match({
-            a: {
+          expect(resulting.assignments).to match([
+            {
+              __field: :a,
               __value: :default,
               __kind: :expression
             },
-            b: {
+            {
+              __field: :b,
               __value: :default,
               __kind: :expression
             }
-          })
+          ])
         end
       end
 
@@ -51,16 +54,18 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Setter do
         let(:resulting) { mocker.set(a: { __value: 1, __kind: :literal }, b: { __value: nil, __kind: :literal }) }
 
         it 'assumes a list of fields with custom mappings was provided' do
-          expect(resulting.assignments).to match({
-            a: {
+          expect(resulting.assignments).to match([
+            {
+              __field: :a,
               __value: 1,
               __kind: :literal
             },
-            b: {
+            {
+              __field: :b,
               __value: nil,
               __kind: :literal
             }
-          })
+          ])
         end
       end
 
@@ -68,16 +73,18 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Setter do
         let(:resulting) { mocker.set(a: 1, b: { org: { id: 1 } }) }
 
         it 'assumes a list of fields with their literal values was provided' do
-          expect(resulting.assignments).to match({
-            a: {
+          expect(resulting.assignments).to match([
+            {
+              __field: :a,
               __value: 1,
               __kind: :literal
             },
-            b: {
+            {
+              __field: :b,
               __value: { org: { id: 1 } },
               __kind: :literal
             }
-          })
+          ])
         end
       end
     end

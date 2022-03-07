@@ -6,42 +6,45 @@ module Persistence
       module Capabilities
         # Makes the Operation capable of setting values.
         module Setter
-          # Creates the @assignments instance variable that maps fields with the
-          # values that should be assigned to them. This mapping should be later
-          # understood by the Driver in order to build the assignment component
-          # of the Directive.
+          # Creates the @assignments instance variable that contains a list of
+          # descriptive hashes that define each field to be set. This mapping
+          # should be later understood by the Driver in order to build the
+          # assignment component of the Directive.
           #
           # # Handle fields with default as positional arguments
           # Update.from(:users).where({ id: 1 }).set(:income)
           # => #<Update
-          #       @assignments={
-          #         income: {
+          #       @assignments=[
+          #         {
+          #           __field: :income,
           #           __value: :default,
           #           __kind: :expression
           #         }
-          #       }
+          #       ]
           #     >
           #
           # # Handles fields with hashes as values, as keyword arguments
           # Update.from(:users).where({ id: 1 }).set(info: { country: 'Mexico' })
           # => #<Update
-          #       @assignments={
-          #         info: {
+          #       @assignments=[
+          #         {
+          #           __field: :info,
           #           __value: { country: 'Mexico' },
           #           __kind: :literal
           #         }
-          #       }
+          #       ]
           #     >
           #
           # # Handles custom field mappings as positional arguments
           # Update.from(:users).where({ id: 1 }).set(information: { __value: { country: 'Mexico' }, __kind: :literal} })
           # => #<Update
-          #       @assignments={
-          #         information: {
+          #       @assignments=[
+          #         {
+          #           __field: :information,
           #           __value: { country: 'Mexico' },
           #           __kind: :literal
           #         }
-          #       }
+          #       ]
           #     >
           def set(*items, **kwitems)
             clear_setter_configuration
@@ -57,7 +60,7 @@ module Persistence
 
             kwitems.each do |field, value|
               if valid_setter_custom_mapping?(value)
-                assignments[field] = value
+                assignments.push(value.merge({ __field: field }))
               else
                 handle_setter_field_hash(field, value)
               end
@@ -67,21 +70,23 @@ module Persistence
           end
 
           def assignments
-            @assignments ||= {}
+            @assignments ||= []
           end
 
           private
 
           def handle_setter_field(field, value: nil)
-            assignments[field] = if value
-                                   { __value: value, __kind: :literal }
-                                 else
-                                   { __value: :default, __kind: :expression }
-                                 end
+            hash = if value
+                     { __field: field, __value: value, __kind: :literal }
+                   else
+                     { __field: field, __value: :default, __kind: :expression }
+                   end
+
+            assignments.push(hash)
           end
 
           def handle_setter_field_hash(field, hash)
-            assignments[field] = { __value: hash, __kind: :literal }
+            assignments.push({ __field: field, __value: hash, __kind: :literal })
           end
 
           def valid_setter_custom_mapping?(mapping)
@@ -92,7 +97,7 @@ module Persistence
           end
 
           def clear_setter_configuration
-            @assignments = {}
+            @assignments = []
           end
 
           def invalid_setter_field!(sample = nil)
