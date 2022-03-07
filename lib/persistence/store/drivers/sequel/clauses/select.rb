@@ -50,8 +50,7 @@ module Persistence
             attr_reader :operation
 
             def initialize(operation)
-              invalid_retriever! unless valid_retriever?(operation)
-
+              validate_retriever!(operation)
               @operation = operation
             end
 
@@ -61,7 +60,7 @@ module Persistence
               return statement if (retrievables = operation.retrievables.to_a).empty?
 
               first, *rest = retrievables
-              statement << "SELECT "
+              statement << "#{clause_constant} "
               statement << format_distinctiveness
               statement << format_retrievable(first)
               rest.each_with_object(statement) do |retrievable, acc|
@@ -70,6 +69,10 @@ module Persistence
             end
 
             private
+
+            def clause_constant
+              "SELECT"
+            end
 
             def format_distinctiveness
               stmnt = ""
@@ -125,12 +128,10 @@ module Persistence
               "#{field} AS #{aka}"
             end
 
-            def valid_retriever?(operation)
+            def validate_retriever!(operation)
               klass = Persistence::Store::Operations::Capabilities::Retriever
-              operation.class.ancestors.include?(klass)
-            end
+              return if operation.class.ancestors.include?(klass)
 
-            def invalid_retriever!
               msg = "The Operation provided isn't a Retriever"
               raise(Persistence::Errors::DriverError, msg)
             end
