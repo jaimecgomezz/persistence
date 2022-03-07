@@ -16,3 +16,4 @@ end
 require_relative 'clauses/with'
 require_relative 'clauses/select'
 require_relative 'clauses/from'
+require_relative 'clauses/group'
