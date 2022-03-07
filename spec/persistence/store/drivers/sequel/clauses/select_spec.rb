@@ -24,10 +24,8 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Select do
   end
 
   describe '#build' do
-    let(:result) { described_class.new(operation.retrieve(retrievables)).build }
-
     context 'with empty #retrievables' do
-      let(:retrievables) { {} }
+      let(:result) { described_class.new(operation.retrieve({})).build }
 
       it 'returns empty string' do
         expect(result).to eq("")
@@ -35,6 +33,7 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Select do
     end
 
     context 'with non-empty #retrievables' do
+      let(:result) { described_class.new(operation.retrieve(retrievables)).build }
       let(:retrievables) do
         {
           a: {
@@ -77,6 +76,24 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Select do
         statement = ["SELECT ", sa, joiner, sb, joiner, sc, joiner, sd, joiner, se].join
 
         expect(result).to eq(statement)
+      end
+
+      context 'with #distincs' do
+        let(:result) { described_class.new(operation.retrieve(retrievables).distinct(:id, :email)).build }
+
+        it 'builds clause including distinctiveness' do
+          sa = "ta.a AS A"
+          sb = "tb.b AS B"
+          sc = "SUM(tc.c::UUID) AS C"
+          sd = "MAX(td.d::UUID[]) AS D"
+          se = "MIN(a.e::CUSTOM)"
+          distinctiveness = "DISTINCT (id, email) "
+          joiner = ", "
+
+          statement = ["SELECT ", distinctiveness, sa, joiner, sb, joiner, sc, joiner, sd, joiner, se].join
+
+          expect(result).to eq(statement)
+        end
       end
     end
   end

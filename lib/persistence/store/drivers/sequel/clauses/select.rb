@@ -61,13 +61,32 @@ module Persistence
               return statement if (retrievables = operation.retrievables.to_a).empty?
 
               first, *rest = retrievables
-              statement << "SELECT #{format_retrievable(first)}"
+              statement << "SELECT "
+              statement << format_distinctiveness
+              statement << format_retrievable(first)
               rest.each_with_object(statement) do |retrievable, acc|
                 acc << ", #{format_retrievable(retrievable)}"
               end
             end
 
             private
+
+            def format_distinctiveness
+              stmnt = ""
+
+              klass = Persistence::Store::Operations::Capabilities::Differentiator
+              return stmnt unless operation.class.ancestors.include?(klass)
+
+              return stmnt if operation.distincts.empty?
+
+              first, *rest = operation.distincts
+              stmnt << "DISTINCT ("
+              stmnt << "#{first[:criteria]}"
+              stmnt << rest.each_with_object("") do |distinct, acc|
+                acc << ", #{distinct[:criteria]}"
+              end
+              stmnt << ") "
+            end
 
             def format_retrievable(retrievable)
               name, hash = retrievable
