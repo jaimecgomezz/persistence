@@ -5,25 +5,25 @@ module Persistence
         module Clauses
           # Class specialized in building SQL's WHERE clause.
           class With
-            attr_reader :operation
+            attr_reader :operation, :params
 
-            def initialize(operation)
-              invalid_requirer! unless valid_requirer?(operation)
-
+            def initialize(operation, params)
               @operation = operation
+              @params = params
             end
 
             def build
-              statement = ""
-
-              return statement if (requirements = operation.requirements.to_a).empty?
+              return ["", params] if (requirements = operation.requirements.to_a).empty?
 
               first, *rest = requirements
+              requirements_formatted = rest.each_with_object([format_requirement(first)]) do |requirement, acc|
+                acc << format_requirement(requirement)
+              end.join(", ")
 
-              statement << "WITH #{format_requirement(first)}"
-              rest.each_with_object(statement) do |requirement, acc|
-                acc << ", #{format_requirement(requirement)}"
-              end
+              [["WITH", requirements_formatted].join(" "), params]
+            rescue NoMethodError
+              msg = "The Operation isn't a Requirer"
+              raise(Persistence::Errors::DriverError, msg)
             end
 
             private
@@ -33,21 +33,11 @@ module Persistence
 
               stmnt = stmnt.build if is_operation?(stmnt)
 
-              "#{name} AS (#{stmnt})"
+              [name, "AS", ["(", stmnt, ")"].join].join(" ")
             end
 
             def is_operation?(value)
               value.class.ancestors.include?(Persistence::Store::Operations::Operation)
-            end
-
-            def valid_requirer?(operation)
-              klass = Persistence::Store::Operations::Capabilities::Requirer
-              operation.class.ancestors.include?(klass)
-            end
-
-            def invalid_requirer!
-              msg = "The Operation provided doesn't implements the Requirer module"
-              raise(Persistence::Errors::DriverError, msg)
             end
           end
         end
