@@ -7,23 +7,17 @@ module Persistence
         module Clauses
           # Class specialized in building SQL's UPDATE clause.
           class Update
-            attr_reader :operation
+            attr_reader :operation, :params
 
-            def initialize(operation)
-              validate_source!(operation)
+            def initialize(operation, params)
               @operation = operation
+              @params = params
             end
 
             def build
-              "UPDATE ONLY #{operation.source}"
-            end
-
-            private
-
-            def validate_source!(operation)
-              return if operation.respond_to?(:source) && operation.source
-
-              msg = "The Operation doesn't has a source defined"
+              ["UPDATE ONLY #{operation.source}", params]
+            rescue NoMethodError
+              msg = "The Operation doesn't has a @source"
               raise(Persistence::Errors::DriverError, msg)
             end
           end
