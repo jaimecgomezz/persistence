@@ -1,41 +1,29 @@
 # frozen_string_literal: true
 
 RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Returning do
-  let(:operation) { Persistence::Store::Operations::Select.new(:a) }
+  let(:base) { Persistence::Store::Operations::Select.new(:a) }
+  let(:mocker) { described_class.new(operation, {}) }
 
   describe '.new' do
-    it 'expects operation' do
-      expect(described_class).to respond_to(:new).with(1).argument
-    end
-
-    context 'with operation being a Retriver' do
-      it 'initializes class' do
-        expect(described_class.new(operation)).to be_a(described_class)
-      end
-    end
-
-    context 'with Operation not being a Retriever' do
-      let(:operation) { Persistence::Store::Operations::Operation.new(:a) }
-
-      it 'raises exception' do
-        expect { described_class.new(operation) }.to raise_error(Persistence::Errors::DriverError)
-      end
+    it 'expects operation and params' do
+      expect(described_class).to respond_to(:new).with(2).argument
     end
   end
 
   describe '#build' do
-    context 'with empty retrievables' do
-      let(:result) { described_class.new(operation.retrieve({})).build }
+    let(:result) { mocker.build }
 
-      it 'returns empty string' do
-        expect(result).to eq("")
+    context 'with empty #retrievables' do
+      let(:operation) { base }
+
+      it 'returns empty statement' do
+        expect(result).to eq(["", {}])
       end
     end
 
-    context 'with non-empty retrievables' do
-      let(:result) { described_class.new(operation.retrieve(retrievables)).build }
-      let(:retrievables) do
-        {
+    context 'with non-empty #retrievables' do
+      let(:retriever) do
+        base.retrieve(
           a: {
             resource: :ta,
             alias: :A
@@ -62,38 +50,60 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Returning do
             aggregation: 'MIN',
             cast: 'CUSTOM'
           }
-        }
+        )
       end
+      let(:operation) { retriever }
 
       it 'build clause' do
-        sa = "ta.a AS A"
-        sb = "tb.b AS B"
-        sc = "SUM(tc.c::UUID) AS C"
-        sd = "MAX(td.d::UUID[]) AS D"
-        se = "MIN(a.e::CUSTOM)"
-        joiner = ", "
+        params = {}
+        statement = [
+          "RETURNING", [
+            "ta.a AS A",
+            "tb.b AS B",
+            "SUM(tc.c::UUID) AS C",
+            "MAX(td.d::UUID[]) AS D",
+            "MIN(a.e::CUSTOM)"
+          ].join(", ")
+        ].join(" ")
 
-        statement = ["RETURNING ", sa, joiner, sb, joiner, sc, joiner, sd, joiner, se].join
-
-        expect(result).to eq(statement)
+        expect(result).to match([statement, params])
       end
 
       context 'with #distincs' do
-        let(:result) { described_class.new(operation.retrieve(retrievables).distinct(:id, :email)).build }
+        let(:operation) { retriever.distinct(:id, :email) }
 
         it 'builds clause including distinctiveness' do
-          sa = "ta.a AS A"
-          sb = "tb.b AS B"
-          sc = "SUM(tc.c::UUID) AS C"
-          sd = "MAX(td.d::UUID[]) AS D"
-          se = "MIN(a.e::CUSTOM)"
-          distinctiveness = "DISTINCT id, email "
-          joiner = ", "
+          params = {}
+          statement = [
+            "RETURNING",
+            "DISTINCT id, email",
+            [
+              "ta.a AS A",
+              "tb.b AS B",
+              "SUM(tc.c::UUID) AS C",
+              "MAX(td.d::UUID[]) AS D",
+              "MIN(a.e::CUSTOM)"
+            ].join(", ")
+          ].join(" ")
 
-          statement = ["RETURNING ", distinctiveness, sa, joiner, sb, joiner, sc, joiner, sd, joiner, se].join
-
-          expect(result).to eq(statement)
+          expect(result).to match([statement, params])
         end
+      end
+    end
+
+    context 'with Operation not being a Retriever' do
+      let(:operation) { Persistence::Store::Operations::Operation.new(:a) }
+
+      it 'raises exception' do
+        expect { mocker.build }.to raise_error(Persistence::Errors::DriverError)
+      end
+    end
+
+    context 'with Operation not being a Differentiator' do
+      let(:operation) { Persistence::Store::Operations::Operation.new(:a) }
+
+      it 'raises exception' do
+        expect { mocker.build }.to raise_error(Persistence::Errors::DriverError)
       end
     end
   end
