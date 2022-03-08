@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Persistence
   module Store
     module Drivers
@@ -13,12 +15,11 @@ module Persistence
             end
 
             def build
-              statement = ""
               reaction = operation.reaction
 
-              return [statement, params] unless reaction[:conflicting]
+              return ["", params] unless reaction[:conflicting]
 
-              statement << [
+              statement = [
                 "ON CONFLICT",
                 format_conflicting_constraints(reaction[:conflicting]),
                 format_conflicting_action(reaction[:action], reaction[:using])
@@ -64,8 +65,7 @@ module Persistence
               return "" if (using = using.to_a).empty?
 
               first, *rest = using
-              statement = [format_update_setter(first)]
-              rest.each_with_object(statement) do |updater, acc|
+              rest.each_with_object([format_update_setter(first)]) do |updater, acc|
                 acc << format_update_setter(updater)
               end.join(", ")
             end
