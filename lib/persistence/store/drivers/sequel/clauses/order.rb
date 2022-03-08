@@ -7,23 +7,25 @@ module Persistence
             NULLS = { first: 'FIRST', last: 'LAST' }.freeze
             ORDERINGS = { asc: 'ASC', desc: 'DESC' }.freeze
 
-            attr_reader :operation
+            attr_reader :operation, :params
 
-            def initialize(operation)
-              validate_orderer!(operation)
+            def initialize(operation, params)
               @operation = operation
+              @params = params
             end
 
             def build
-              statement = ""
+              return ["", params] if (orderings = operation.orderings).empty?
 
-              return statement if operation.orderings.empty?
+              first, *rest = orderings
+              orderings_formatted = rest.each_with_object([format_ordering(first)]) do |ordering, acc|
+                acc << format_ordering(ordering)
+              end.join(", ")
 
-              first, *rest = operation.orderings
-              statement << "ORDER BY #{format_ordering(first)}"
-              rest.each_with_object(statement) do |ordering, acc|
-                acc << ", #{format_ordering(ordering)}"
-              end
+              [["ORDER BY", orderings_formatted].join(" "), params]
+            rescue NoMethodError
+              msg = "The Operation isn't a Orderer"
+              raise(Persistence::Errors::DriverError, msg)
             end
 
             private
@@ -44,14 +46,6 @@ module Persistence
               nulls = nulls ? (NULLS[nulls.to_sym] || nulls) : NULLS[:last]
 
               "#{field} NULLS #{nulls}"
-            end
-
-            def validate_orderer!(operation)
-              klass = Persistence::Store::Operations::Capabilities::Orderer
-              return if operation.class.ancestors.include?(klass)
-
-              msg = "The Operation isn't a Orderer"
-              raise(Persistence::Errors::DriverError, msg)
             end
           end
         end
