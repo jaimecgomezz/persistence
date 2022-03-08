@@ -22,7 +22,7 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Values do
     end
 
     context 'with non-empty assignments' do
-      let(:operation) { base.set(:id, email: 'a@email.com', meta: { country: 'Mexico' }) }
+      let(:operation) { base.values(:id, email: 'a@email.com', meta: { country: 'Mexico' }) }
 
       it 'build clause' do
         params = {

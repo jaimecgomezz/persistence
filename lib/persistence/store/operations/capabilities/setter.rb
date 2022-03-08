@@ -69,6 +69,8 @@ module Persistence
             self
           end
 
+          alias_method :values, :set
+
           def assignments
             @assignments ||= []
           end
