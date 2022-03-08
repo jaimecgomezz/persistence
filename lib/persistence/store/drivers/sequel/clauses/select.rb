@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Persistence
   module Store
     module Drivers
@@ -47,25 +49,29 @@ module Persistence
               jsonbs: 'JSONB[]'
             }
 
-            attr_reader :operation
+            attr_reader :operation, :params
 
-            def initialize(operation)
-              validate_retriever!(operation)
+            def initialize(operation, params)
               @operation = operation
+              @params = params
             end
 
             def build
-              statement = ""
-
-              return statement if (retrievables = operation.retrievables.to_a).empty?
+              return ["", params] if (retrievables = operation.retrievables.to_a).empty?
 
               first, *rest = retrievables
-              statement << "#{clause_constant} "
-              statement << format_distinctiveness
-              statement << format_retrievable(first)
-              rest.each_with_object(statement) do |retrievable, acc|
-                acc << ", #{format_retrievable(retrievable)}"
-              end
+              retrievables_formatted = rest.each_with_object([format_retrievable(first)]) do |retrievable, acc|
+                acc << format_retrievable(retrievable)
+              end.join(", ")
+
+              statement = [clause_constant, format_distinctiveness, retrievables_formatted].select do |e|
+                !e.empty?
+              end.join(" ")
+
+              [statement, params]
+            rescue NoMethodError
+              msg = "The Operation isn't a Retriever"
+              raise(Persistence::Errors::DriverError, msg)
             end
 
             private
@@ -75,20 +81,17 @@ module Persistence
             end
 
             def format_distinctiveness
-              stmnt = ""
+              return "" if (distincts = operation.distincts).empty?
 
-              klass = Persistence::Store::Operations::Capabilities::Differentiator
-              return stmnt unless operation.class.ancestors.include?(klass)
+              first, *rest = distincts
+              distincts_formatted = rest.each_with_object([first[:criteria]]) do |distinct, acc|
+                acc << distinct[:criteria]
+              end.join(", ")
 
-              return stmnt if operation.distincts.empty?
-
-              first, *rest = operation.distincts
-              stmnt << "DISTINCT "
-              stmnt << "#{first[:criteria]}"
-              stmnt << rest.each_with_object("") do |distinct, acc|
-                acc << ", #{distinct[:criteria]}"
-              end
-              stmnt << " "
+              ["DISTINCT", distincts_formatted].join(" ")
+            rescue NoMethodError
+              msg = "The Operation isn't a Differentiator"
+              raise(Persistence::Errors::DriverError, msg)
             end
 
             def format_retrievable(retrievable)
@@ -126,14 +129,6 @@ module Persistence
               return field unless aka
 
               "#{field} AS #{aka}"
-            end
-
-            def validate_retriever!(operation)
-              klass = Persistence::Store::Operations::Capabilities::Retriever
-              return if operation.class.ancestors.include?(klass)
-
-              msg = "The Operation provided isn't a Retriever"
-              raise(Persistence::Errors::DriverError, msg)
             end
           end
         end
