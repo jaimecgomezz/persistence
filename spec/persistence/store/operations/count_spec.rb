@@ -7,4 +7,10 @@ RSpec.describe Persistence::Store::Operations::Count do
 
   include_context 'filter'
   include_context 'discard_manager'
+
+  it 'discards discarded by default' do
+    expected = Hash[[[Persistence::Config::DISCARD_ATTRIBUTE, nil]]]
+
+    expect(mocker.global_filters).to include(expected)
+  end
 end

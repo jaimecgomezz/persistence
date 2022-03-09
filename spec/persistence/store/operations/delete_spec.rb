@@ -9,4 +9,10 @@ RSpec.describe Persistence::Store::Operations::Delete do
   include_context 'retriever'
   include_context 'requirer'
   include_context 'discard_manager'
+
+  it 'discards discarded by default' do
+    expected = Hash[[[Persistence::Config::DISCARD_ATTRIBUTE, nil]]]
+
+    expect(mocker.global_filters).to include(expected)
+  end
 end
