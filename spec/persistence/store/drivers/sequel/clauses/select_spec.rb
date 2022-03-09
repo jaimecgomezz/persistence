@@ -16,8 +16,8 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Select do
     context 'with empty #retrievables' do
       let(:operation) { base }
 
-      it 'returns empty statement' do
-        expect(result).to eq(["", {}])
+      it 'returns default statement' do
+        expect(result).to eq(["SELECT *", {}])
       end
     end
 

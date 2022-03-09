@@ -57,7 +57,7 @@ module Persistence
             end
 
             def build
-              return ["", params] if (retrievables = operation.retrievables.to_a).empty?
+              return [[clause_constant, "*"].join(" "), params] if (retrievables = operation.retrievables.to_a).empty?
 
               first, *rest = retrievables
               retrievables_formatted = rest.each_with_object([format_retrievable(first)]) do |retrievable, acc|
