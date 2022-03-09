@@ -17,8 +17,7 @@ module Persistence
             def build
               return ["", params] if (groupings = operation.groupings).empty?
 
-              first, *rest = groupings
-              groups_formatted = rest.each_with_object([first[:criteria]]) do |grouping, acc|
+              groups_formatted = groupings.each_with_object([]) do |grouping, acc|
                 acc << grouping[:criteria]
               end.join(", ")
 

@@ -28,8 +28,7 @@ module Persistence
 
               return [base, params] if (joins = operation.joins.to_a).empty?
 
-              first, *rest = joins
-              joins_formatted = rest.each_with_object([format_join(first)]) do |join, acc|
+              joins_formatted = joins.each_with_object([]) do |join, acc|
                 acc << format_join(join)
               end.join(" ")
 

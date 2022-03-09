@@ -19,8 +19,7 @@ module Persistence
             def build
               return ["", params] if (assignments = operation.assignments).empty?
 
-              first, *rest = assignments
-              assignments_formatted = rest.each_with_object([format_assignment(first)]) do |assignment, acc|
+              assignments_formatted = assignments.each_with_object([]) do |assignment, acc|
                 acc << format_assignment(assignment)
               end.join(", ")
 

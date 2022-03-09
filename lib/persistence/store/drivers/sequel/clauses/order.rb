@@ -19,8 +19,7 @@ module Persistence
             def build
               return ["", params] if (orderings = operation.orderings).empty?
 
-              first, *rest = orderings
-              orderings_formatted = rest.each_with_object([format_ordering(first)]) do |ordering, acc|
+              orderings_formatted = orderings.each_with_object([]) do |ordering, acc|
                 acc << format_ordering(ordering)
               end.join(", ")
 

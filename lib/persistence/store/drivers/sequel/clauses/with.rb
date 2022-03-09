@@ -17,8 +17,7 @@ module Persistence
             def build
               return ["", params] if (requirements = operation.requirements.to_a).empty?
 
-              first, *rest = requirements
-              requirements_formatted = rest.each_with_object([format_requirement(first)]) do |requirement, acc|
+              requirements_formatted = requirements.each_with_object([]) do |requirement, acc|
                 acc << format_requirement(requirement)
               end.join(", ")
 

@@ -43,9 +43,7 @@ module Persistence
             end
 
             def format_conflicting_fields(fields)
-              first, *rest = fields
-
-              statement = rest.each_with_object([first]) do |field, acc|
+              statement = fields.each_with_object([]) do |field, acc|
                 acc << field
               end.join(", ")
 
@@ -64,8 +62,7 @@ module Persistence
             def format_update_action(using)
               return "" if (using = using.to_a).empty?
 
-              first, *rest = using
-              rest.each_with_object([format_update_setter(first)]) do |updater, acc|
+              using.each_with_object([]) do |updater, acc|
                 acc << format_update_setter(updater)
               end.join(", ")
             end

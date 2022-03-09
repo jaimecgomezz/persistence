@@ -91,8 +91,7 @@ module Persistence
               when Hash
                 return if (flattened = flatten_hash(value).to_a).empty?
 
-                first, *rest = flattened
-                rest.each_with_object([format_flattened_pair(field, placeholder, first)]) do |pairs, acc|
+                flattened.each_with_object([]) do |pairs, acc|
                   acc << format_flattened_pair(field, placeholder, pairs)
                 end.join(" AND ")
               when Time

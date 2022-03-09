@@ -59,8 +59,7 @@ module Persistence
             def build
               return [[clause_constant, "*"].join(" "), params] if (retrievables = operation.retrievables.to_a).empty?
 
-              first, *rest = retrievables
-              retrievables_formatted = rest.each_with_object([format_retrievable(first)]) do |retrievable, acc|
+              retrievables_formatted = retrievables.each_with_object([]) do |retrievable, acc|
                 acc << format_retrievable(retrievable)
               end.join(", ")
 
@@ -83,8 +82,7 @@ module Persistence
             def format_distinctiveness
               return "" if (distincts = operation.distincts).empty?
 
-              first, *rest = distincts
-              distincts_formatted = rest.each_with_object([first[:criteria]]) do |distinct, acc|
+              distincts_formatted = distincts.each_with_object([]) do |distinct, acc|
                 acc << distinct[:criteria]
               end.join(", ")
 
