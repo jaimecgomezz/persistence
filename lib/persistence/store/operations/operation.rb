@@ -12,7 +12,16 @@ module Persistence
         end
 
         def name
-          @name ||= self.class.name.to_s.split(/(?=[A-Z])/).join('_').downcase.to_sym
+          @name ||= self.
+            class.
+            name.
+            to_s.
+            split("::").
+            last.
+            split(/(?=[A-Z])/).
+            join('_').
+            downcase.
+            to_sym
         end
 
         def after(result)

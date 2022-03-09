@@ -11,10 +11,16 @@ RSpec.describe Persistence::Store::Operations::Operation do
 
   describe '#name' do
     let(:mocker) do
-      class SomeRandomName < Persistence::Store::Operations::Operation
+      module Some
+        module Nested
+          module Path
+            class SomeRandomName < Persistence::Store::Operations::Operation
+            end
+          end
+        end
       end
 
-      SomeRandomName.new(:a)
+      Some::Nested::Path::SomeRandomName.new(:a)
     end
 
     it 'properly formats name' do
