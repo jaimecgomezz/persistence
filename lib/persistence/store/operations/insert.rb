@@ -9,6 +9,12 @@ module Persistence
         include Capabilities::Requirer
         include Capabilities::Setter
         include Capabilities::Reactioner
+
+        def after(results)
+          return results unless results.size == 1
+
+          results.first
+        end
       end
     end
   end

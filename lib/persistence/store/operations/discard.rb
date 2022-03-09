@@ -13,6 +13,12 @@ module Persistence
           set(**values)
           super(source)
         end
+
+        def after(results)
+          return results unless results.size == 1
+
+          results.first
+        end
       end
     end
   end
