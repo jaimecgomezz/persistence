@@ -6,6 +6,8 @@ module Persistence
       module Sequel
         module Clauses
           # Class specialized in building SQL's WHERE clause.
+          #
+          # TODO: improve readability and codebase in general
           class Where
             attr_reader :operation, :params, :filter_id
 
@@ -37,11 +39,10 @@ module Persistence
               return if filters.empty?
 
               first, *rest = filters
-              filters_formatted = rest.each_with_object([format_filters_container(first[:filters])]) do |filter, acc|
-                acc << [
-                  format_filter_operand(filter[:operand], filter[:negate]),
-                  format_filters_container(filter[:filters])
-                ].compact.join(" ")
+              first = format_filters_container(first[:filters], first[:negate])
+              filters_formatted = rest.each_with_object([first]) do |filter, acc|
+                operand = filter[:operand].to_s.upcase
+                acc << [operand, format_filters_container(filter[:filters], filter[:negate])].join(" ")
               end.join(" ")
 
               ["(", filters_formatted, ")"].join
@@ -50,39 +51,22 @@ module Persistence
             def format_gfilters(filters)
               return if filters.empty?
 
-              [format_filter_operand(:and, false), format_filters_container(filters)].join(" ")
+              ["AND", format_filters_container(filters, false)].join(" ")
             end
 
-            def format_filters_container(filters)
-              return if (filters = filters.to_a).empty?
+            def format_filters_container(container, negate)
+              return if (filters = container.to_a).empty?
 
               first, *rest = filters
               filters_formatted = rest.each_with_object([format_filter(first)]) do |filter, acc|
-                acc << [
-                  format_filter_operand(:and, false),
-                  format_filter(filter)
-                ].compact.join(" ")
+                acc << ["AND", format_filter(filter)].join(" ")
               end.join(" ")
 
               @filter_id = filter_id.next
 
-              ["(", filters_formatted, ")"].join
-            end
+              statement = ["(", filters_formatted, ")"].join
 
-            def format_filter_operand(operand, negate)
-              operand = case operand
-                        when :and
-                          "AND"
-                        when :or
-                          "OR"
-                        else
-                          msg = "Operand in filters not supported: #{filters}"
-                          raise(Persistence::Errors::DriverError, msg)
-                        end
-
-              return operand unless negate
-
-              ["NOT", operand].join(" ")
+              negate ? ["NOT", statement].join(" ") : statement
             end
 
             def format_filter(field)
@@ -98,8 +82,8 @@ module Persistence
                 placeholder_first = [placeholder, "_first"].join
                 placeholder_last = [placeholder, "_last"].join
 
-                params[placeholder_first.to_sym] = value.first
-                params[placeholder_last.to_sym] = value.last
+                params[placeholder_first.to_sym] = format_time(value.first)
+                params[placeholder_last.to_sym] = format_time(value.last)
                 [
                   field, "BETWEEN", [":", placeholder_first].join, "AND",
                   [":", placeholder_last].join
@@ -109,8 +93,11 @@ module Persistence
 
                 first, *rest = flattened
                 rest.each_with_object([format_flattened_pair(field, placeholder, first)]) do |pairs, acc|
-                  acc << format_flattened_kv_pair(field, placeholder, pairs)
+                  acc << format_flattened_pair(field, placeholder, pairs)
                 end.join(" AND ")
+              when Time
+                params[placeholder.to_sym] = format_time(value)
+                [field, '=', [":", placeholder].join].join(" ")
               when Persistence::Store::Operations::Operation
                 msg = "Operations as filters aren't supportted yet"
                 raise(Persistence::Errors::DriverError, msg)
@@ -141,6 +128,12 @@ module Persistence
 
               path = [[field, *firsts].join(" -> "), last].join(" ->> ")
               [path, "=", [":", placeholder_nested].join].join(" ")
+            end
+
+            def format_time(time)
+              return time unless time.is_a?(Time)
+
+              time.utc.to_s
             end
           end
         end
