@@ -63,7 +63,7 @@ module Persistence
                 acc << format_retrievable(retrievable)
               end.join(", ")
 
-              statement = [clause_constant, format_distinctiveness, retrievables_formatted].select do |e|
+              statement = [clause_constant, format_distinctiveness, retrievables_formatted].compact.select do |e|
                 !e.empty?
               end.join(" ")
 
@@ -80,7 +80,7 @@ module Persistence
             end
 
             def format_distinctiveness
-              return "" if (distincts = operation.distincts).empty?
+              return if (distincts = operation.distincts).empty?
 
               distincts_formatted = distincts.each_with_object([]) do |distinct, acc|
                 acc << distinct[:criteria]
@@ -88,8 +88,7 @@ module Persistence
 
               ["DISTINCT", distincts_formatted].join(" ")
             rescue NoMethodError
-              msg = "The Operation isn't a Differentiator"
-              raise(Persistence::Errors::DriverError, msg)
+              nil
             end
 
             def format_retrievable(retrievable)

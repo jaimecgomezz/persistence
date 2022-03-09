@@ -26,13 +26,15 @@ module Persistence
             def build
               base = "FROM #{operation.source}"
 
-              return [base, params] if (joins = operation.joins.to_a).empty?
+              # TODO: rescue instead of #respond_to?
+              return [base, params] unless operation.respond_to?(:joins)
 
+              joins = operation.joins.to_a
               joins_formatted = joins.each_with_object([]) do |join, acc|
                 acc << format_join(join)
               end.join(" ")
 
-              [[base, joins_formatted].join(" "), params]
+              [[base, joins_formatted].join(" ").strip, params]
             rescue NoMethodError
               msg = "The Operation doesn't has a @source"
               raise(Persistence::Errors::DriverError, msg)

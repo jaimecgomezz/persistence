@@ -19,12 +19,13 @@ module Persistence
 
             return ["", params] if clauses.empty?
 
+            # TODO: return nil on empty statement to rather use #compact
             statement = clauses.each_with_object([]) do |clause, acc|
               stmnt, params = clause.new(operation, params).build
               acc << stmnt
-            end.join(" ")
+            end.select { |e| !e.empty? }.join(" ")
 
-            [statement, params]
+            [statement.strip, params]
           end
         end
       end

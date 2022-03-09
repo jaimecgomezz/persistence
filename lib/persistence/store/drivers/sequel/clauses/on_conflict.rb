@@ -55,12 +55,12 @@ module Persistence
               when :nothing
                 "DO NOTHING"
               when :update
-                ["DO UPDATE SET", format_update_action(using)].join(" ")
+                ["DO UPDATE SET", format_update_action(using)].compact.join(" ")
               end
             end
 
             def format_update_action(using)
-              return "" if (using = using.to_a).empty?
+              return if (using = using.to_a).empty?
 
               using.each_with_object([]) do |updater, acc|
                 acc << format_update_setter(updater)
