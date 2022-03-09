@@ -14,6 +14,12 @@ module Persistence
           exclude_discarded
           super(source)
         end
+
+        def after(results)
+          return 0 if (first = results.first).nil?
+
+          first[:count]
+        end
       end
     end
   end

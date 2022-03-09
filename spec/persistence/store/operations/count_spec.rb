@@ -24,4 +24,12 @@ RSpec.describe Persistence::Store::Operations::Count do
 
     expect(mocker.global_filters).to include(expected)
   end
+
+  describe '#after' do
+    let(:result) { mocker.after([{ count: 10 }]) }
+
+    it 'returns directly the count' do
+      expect(result).to be(10)
+    end
+  end
 end
