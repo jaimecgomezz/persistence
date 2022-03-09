@@ -7,6 +7,12 @@ module Persistence
         include Capabilities::Filter
         include Capabilities::Retriever
         include Capabilities::Setter
+
+        def initialize(source)
+          values = Hash[[[Persistence::Config::DISCARD_ATTRIBUTE, Time.now.utc.to_s]]]
+          set(**values)
+          super(source)
+        end
       end
     end
   end
