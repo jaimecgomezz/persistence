@@ -5,10 +5,12 @@ module Persistence
     module Operations
       # Responsible of building a COUNT Directive.
       class Count < Operation
+        include Capabilities::Retriever
         include Capabilities::Filter
         include Capabilities::DiscardedManager
 
         def initialize(source)
+          retrieve('*': { resource: source, alias: nil, aggregation: 'COUNT' })
           exclude_discarded
           super(source)
         end
