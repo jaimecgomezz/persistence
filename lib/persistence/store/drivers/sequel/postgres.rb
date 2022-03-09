@@ -19,9 +19,19 @@ module Persistence
             handle_no_method_error!(e.name)
           end
 
+          def run(operation)
+            statement, params = send(operation.name, operation)
+            results = db.fetch(statement, params).all
+            operation.after(results)
+          rescue NoMethodError => e
+            handle_no_method_error!(e.name)
+          rescue => e
+            raise(Persistence::Errors::DriverError, e.message)
+          end
+
           def run_custom(statement, params)
             db.fetch(statement, params).all
-          rescue NoMethodError
+          rescue NoMethodError => e
             handle_no_method_error!(e.name)
           rescue => e
             raise(Persistence::Errors::DriverError, e.message)

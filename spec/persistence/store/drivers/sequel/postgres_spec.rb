@@ -111,4 +111,65 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Postgres do
       end
     end
   end
+
+  describe '#run' do
+    let(:db) { Sequel.mock(fetch: fetch) }
+
+    let(:result) { mocker.run(operation) }
+
+    context 'with Count operation' do
+      let(:fetch) { [{ count: 10 }] }
+      let(:operation) { Persistence::Store::Operations::Count.new(:a) }
+
+      it 'adequately process count' do
+        expect(result).to be(10)
+      end
+    end
+
+    context 'with Select operation' do
+      let(:fetch) { [{ id: 1 }, { id: 2 }] }
+      let(:base) { Persistence::Store::Operations::Select.new(:a) }
+
+      context 'with limit of 1' do
+        let(:operation) { base.limit(1) }
+
+        it 'returns only first record' do
+          expect(result).to match(fetch.first)
+        end
+      end
+
+      context 'with limit different than 1' do
+        let(:operation) { base }
+
+        it 'returns all founded records' do
+          expect(result).to match(fetch)
+        end
+      end
+    end
+
+    context 'with invalid db' do
+      let(:db) { Class.new.new }
+
+      it 'raises exception' do
+        expect { mocker.run(operation) }.to raise_error(Persistence::Errors::DriverError)
+      end
+    end
+
+    context 'with invalid Operation' do
+      let(:fetch) { [] }
+      let(:operation) { Persistence::Store::Operations::Select.new(:a) }
+
+      it 'raises exception on missing #name' do
+        operation.instance_eval('undef :name')
+
+        expect { mocker.run(operation) }.to raise_error(Persistence::Errors::DriverError)
+      end
+
+      it 'raises exception on missing #after' do
+        operation.instance_eval('undef :after')
+
+        expect { mocker.run(operation) }.to raise_error(Persistence::Errors::DriverError)
+      end
+    end
+  end
 end
