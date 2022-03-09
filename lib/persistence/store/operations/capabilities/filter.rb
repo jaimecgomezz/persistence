@@ -20,13 +20,9 @@ module Persistence
           # => #<Select
           #       @user_filters=[
           #         {
-          #           __negate: false,
-          #           __operand: :and,
-          #           __value: {
-          #             __negate: false,
-          #             __operand: :equal,
-          #             __value: 1
-          #           }
+          #           negate: false,
+          #           operand: :and,
+          #           filters: { id: 1 }
           #         }
           #       ]
           #     >
@@ -43,13 +39,9 @@ module Persistence
           # => #<Select
           #       @user_filters=[
           #         {
-          #           __negate: true,
-          #           __operand: :and,
-          #           __value: {
-          #             __negate: false,
-          #             __operand: :equal,
-          #             __value: 1
-          #           }
+          #           negate: true,
+          #           operand: :and,
+          #           filters: { id: 1 }
           #         }
           #       ]
           #     >
@@ -87,16 +79,12 @@ module Persistence
 
           def add_filters(hash, operand)
             user_filters.push({
-              __operand: operand,
-              __negate: filter_state[:negate],
-              __filters: filters_builder.build(hash)
+              filters: hash,
+              operand: operand,
+              negate: filter_state[:negate]
             })
 
             @filter_state = { filtering: false, negate: false }
-          end
-
-          def filters_builder
-            @filters_builder ||= Helpers::FiltersBuilder.new
           end
 
           def filter_state

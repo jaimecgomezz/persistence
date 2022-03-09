@@ -12,7 +12,6 @@ end
 
 require_relative 'capabilities/reactioner'
 require_relative 'capabilities/sourcer'
-require_relative 'capabilities/helpers'
 require_relative 'capabilities/filter'
 require_relative 'capabilities/joiner'
 require_relative 'capabilities/orderer'

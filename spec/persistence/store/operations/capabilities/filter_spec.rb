@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
+  let(:mocker) { Class.new { include Persistence::Store::Operations::Capabilities::Filter }.new }
+
   let(:filters) { { a: 1, b: 2 } }
   let(:secondary_filters) { { b: 3, c: 4 } }
-
-  let(:mocker) { Class.new { include Persistence::Store::Operations::Capabilities::Filter }.new }
-  let(:filters_builder) { Persistence::Store::Operations::Capabilities::Helpers::FiltersBuilder.new }
 
   describe '#where' do
     it 'returns self' do
@@ -18,9 +17,9 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
       it 'overwrites previous configuration' do
         expect(resulting.where({ id: 2 }).user_filters).to match([
           {
-            __negate: false,
-            __operand: :and,
-            __filters: filters_builder.build({ id: 2 })
+            negate: false,
+            operand: :and,
+            filters: { id: 2 }
           }
         ])
       end
@@ -40,9 +39,9 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
 
       it 'sets primary filters' do
         expect(resulting.user_filters.first).to match({
-          __negate: false,
-          __operand: :and,
-          __filters: filters_builder.build(filters)
+          negate: false,
+          operand: :and,
+          filters: filters
         })
       end
     end
@@ -53,9 +52,9 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
 
         it 'adds secondary filters' do
           expect(resulting.user_filters.last).to match({
-            __negate: false,
-            __operand: :or,
-            __filters: filters_builder.build(secondary_filters)
+            negate: false,
+            operand: :or,
+            filters: secondary_filters
           })
         end
       end
@@ -73,9 +72,9 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
 
         it 'adds secondary filters' do
           expect(resulting.user_filters.last).to match({
-            __negate: false,
-            __operand: :and,
-            __filters: filters_builder.build(secondary_filters)
+            negate: false,
+            operand: :and,
+            filters: secondary_filters
           })
         end
       end
@@ -99,9 +98,9 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
       it 'overwrites previous configuration' do
         expect(resulting.where_not({ id: 2 }).user_filters).to match([
           {
-            __negate: true,
-            __operand: :and,
-            __filters: filters_builder.build({ id: 2 })
+            negate: true,
+            operand: :and,
+            filters: { id: 2 }
           }
         ])
       end
@@ -121,9 +120,9 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
 
       it 'sets primary filters' do
         expect(resulting.user_filters.first).to match({
-          __negate: true,
-          __operand: :and,
-          __filters: filters_builder.build(filters)
+          negate: true,
+          operand: :and,
+          filters: filters
         })
       end
     end
@@ -134,9 +133,9 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
 
         it 'adds secondary filters' do
           expect(resulting.user_filters.last).to match({
-            __negate: true,
-            __operand: :or,
-            __filters: filters_builder.build(secondary_filters)
+            negate: true,
+            operand: :or,
+            filters: secondary_filters
           })
         end
       end
@@ -154,9 +153,9 @@ RSpec.describe Persistence::Store::Operations::Capabilities::Filter do
 
         it 'adds secondary filters' do
           expect(resulting.user_filters.last).to match({
-            __negate: true,
-            __operand: :and,
-            __filters: filters_builder.build(secondary_filters)
+            negate: true,
+            operand: :and,
+            filters: secondary_filters
           })
         end
       end
