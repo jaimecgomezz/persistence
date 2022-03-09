@@ -149,6 +149,7 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Postgres do
 
     context 'with invalid db' do
       let(:db) { Class.new.new }
+      let(:operation) { Persistence::Store::Operations::Select.new(:a) }
 
       it 'raises exception' do
         expect { mocker.run(operation) }.to raise_error(Persistence::Errors::DriverError)
