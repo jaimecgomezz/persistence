@@ -23,7 +23,9 @@ module Persistence
 
       def perform
         validate_operation_selected!
-        driver.run(operation)
+        driver.run(operation).tap do
+          @operation = nil
+        end
       rescue NoMethodError
         raise_engine_error! "Invalid driver, it should implement #run(operation)"
       end

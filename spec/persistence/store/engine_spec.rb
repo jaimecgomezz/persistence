@@ -44,6 +44,11 @@ RSpec.describe Persistence::Store::Engine do
       it 'returns expected result' do
         expect(result).to match(fetch.first)
       end
+
+      it 'clean operation when done' do
+        mocker.selection.perform
+        expect(mocker.operation).to be_nil
+      end
     end
 
     context 'with exception during execution' do
