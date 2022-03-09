@@ -24,6 +24,12 @@ module Persistence
           exclude_discarded
           super(source)
         end
+
+        def after(results)
+          return results if pagination[:limit] != 1
+
+          results.first
+        end
       end
     end
   end
