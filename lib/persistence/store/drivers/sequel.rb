@@ -11,5 +11,6 @@ module Persistence
   end
 end
 
+require_relative 'sequel/builder'
 require_relative 'sequel/clauses'
 require_relative 'sequel/postgres'
