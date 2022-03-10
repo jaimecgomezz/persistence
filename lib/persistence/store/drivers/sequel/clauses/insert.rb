@@ -22,7 +22,7 @@ module Persistence
               return [base, params] if (assignments = operation.assignments).empty?
 
               fields_formatted = assignments.each_with_object([]) do |assignment, acc|
-                acc << assignment[:__field]
+                acc << assignment[:field]
               end.join(", ")
 
               [[base, ["(", fields_formatted, ")"].join].join(" "), params]

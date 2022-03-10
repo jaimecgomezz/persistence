@@ -11,58 +11,54 @@ module Persistence
           # should be later understood by the Driver in order to build the
           # assignment component of the Directive.
           #
-          # # Handle fields with default as positional arguments
-          # Update.from(:users).where({ id: 1 }).set(:income)
+          # # Handle fields with default values
+          # Update.from(:users).where({ id: 1 }).set({ income: :default })
           # => #<Update
           #       @assignments=[
           #         {
-          #           __field: :income,
-          #           __value: :default,
-          #           __kind: :expression
+          #           field: :income,
+          #           value: :default,
+          #           kind: :expression
           #         }
           #       ]
           #     >
           #
-          # # Handles fields with hashes as values, as keyword arguments
-          # Update.from(:users).where({ id: 1 }).set(info: { country: 'Mexico' })
+          # # Handles fields with hashes as values
+          # Update.from(:users).where({ id: 1 }).set({ info: { country: 'Mexico' } })
           # => #<Update
           #       @assignments=[
           #         {
-          #           __field: :info,
-          #           __value: { country: 'Mexico' },
-          #           __kind: :literal
+          #           field: :info,
+          #           value: { country: 'Mexico' },
+          #           kind: :literal
           #         }
           #       ]
           #     >
           #
-          # # Handles custom field mappings as positional arguments
-          # Update.from(:users).where({ id: 1 }).set(information: { __value: { country: 'Mexico' }, __kind: :literal} })
+          # # Handles custom field mappings
+          # Update.from(:users).where({ id: 1 }).set({ information: { value: { country: 'Mexico' }, kind: :literal} } })
           # => #<Update
           #       @assignments=[
           #         {
-          #           __field: :information,
-          #           __value: { country: 'Mexico' },
-          #           __kind: :literal
+          #           field: :information,
+          #           value: { country: 'Mexico' },
+          #           kind: :literal
           #         }
           #       ]
           #     >
-          def set(*items, **kwitems)
+          def set(hash)
             clear_setter_configuration
 
-            items.each do |field|
-              case field
-              when Symbol, String
-                handle_setter_field(field)
+            hash.each do |field, value|
+              case value
+              when Hash
+                if valid_setter_custom_mapping?(value)
+                  assignments.push(value.merge({ field: field }))
+                else
+                  handle_setter_field_hash(field, value)
+                end
               else
-                invalid_setter_field!(field)
-              end
-            end
-
-            kwitems.each do |field, value|
-              if valid_setter_custom_mapping?(value)
-                assignments.push(value.merge({ __field: field }))
-              else
-                handle_setter_field_hash(field, value)
+                handle_setter_field(field, value)
               end
             end
 
@@ -77,35 +73,32 @@ module Persistence
 
           private
 
-          def handle_setter_field(field, value: nil)
-            hash = if value
-                     { __field: field, __value: value, __kind: :literal }
+          def handle_setter_field(field, value)
+            base = { field: field, value: value }
+
+            kind = case value
+                   when Symbol
+                     :expression
                    else
-                     { __field: field, __value: :default, __kind: :expression }
+                     :literal
                    end
 
-            assignments.push(hash)
+            assignments.push(base.merge({ kind: kind }))
           end
 
           def handle_setter_field_hash(field, hash)
-            assignments.push({ __field: field, __value: hash, __kind: :literal })
+            assignments.push({ field: field, value: hash, kind: :literal })
           end
 
           def valid_setter_custom_mapping?(mapping)
             return false unless mapping.is_a?(Hash)
 
-            required = [:__value, :__kind]
+            required = [:value, :kind]
             (mapping.keys & required).size == required.size
           end
 
           def clear_setter_configuration
             @assignments = []
-          end
-
-          def invalid_setter_field!(sample = nil)
-            msg = "Invalid field provided to #set"
-            msg += ": #{sample}" if sample
-            raise(Persistence::Errors::OperationError, msg)
           end
         end
       end

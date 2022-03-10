@@ -10,7 +10,7 @@ module Persistence
 
         def initialize(source)
           values = Hash[[[Persistence::Config::DISCARD_ATTRIBUTE, Time.now.utc.to_s]]]
-          set(**values)
+          set(values)
           super(source)
         end
 

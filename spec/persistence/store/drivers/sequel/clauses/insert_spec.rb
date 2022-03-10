@@ -21,7 +21,7 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Insert do
     end
 
     context 'with operation defining assignments' do
-      let(:operation) { base.set(:id, email: 'a@mail.com', meta: { id: 1 }) }
+      let(:operation) { base.set({ id: :default, email: 'a@mail.com', meta: { id: 1 } }) }
 
       it 'includes them in the clause' do
         params = {}

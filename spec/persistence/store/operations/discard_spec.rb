@@ -10,7 +10,7 @@ RSpec.describe Persistence::Store::Operations::Discard do
   include_context 'setter'
 
   it 'sets discardable attribute by default' do
-    keys = mocker.assignments.map { |a| a[:__field] }
+    keys = mocker.assignments.map { |a| a[:field] }
 
     expect(keys).to include(Persistence::Config::DISCARD_ATTRIBUTE)
   end

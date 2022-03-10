@@ -22,7 +22,7 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Clauses::Set do
     end
 
     context 'with non-empty assignments' do
-      let(:operation) { base.set(:income, age: 10, meta: { some: 'other' }) }
+      let(:operation) { base.set({ income: :default, age: 10, meta: { some: 'other' } }) }
 
       it 'build clause' do
         params = {

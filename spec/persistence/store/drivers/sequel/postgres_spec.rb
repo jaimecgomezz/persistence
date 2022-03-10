@@ -87,7 +87,9 @@ RSpec.describe Persistence::Store::Drivers::Sequel::Postgres do
     end
 
     context 'with Update operation' do
-      let(:operation) { Persistence::Store::Operations::Update.new(:a).set(id: 2).where({ id: 1 }).include_discarded }
+      let(:operation) do
+        Persistence::Store::Operations::Update.new(:a).set({ id: 2 }).where({ id: 1 }).include_discarded
+      end
 
       it 'build statement' do
         params = { where_a_id: 1, set_id: 2 }

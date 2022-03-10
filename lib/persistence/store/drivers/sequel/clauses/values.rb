@@ -32,10 +32,10 @@ module Persistence
             private
 
             def format_assignment(assignment)
-              field = assignment[:__field]
-              value = assignment[:__value]
+              field = assignment[:field]
+              value = assignment[:value]
 
-              case assignment[:__kind]
+              case assignment[:kind]
               when :literal
                 placeholder = "values_#{field}"
 
