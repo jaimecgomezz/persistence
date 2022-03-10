@@ -13,9 +13,6 @@ module Persistence
           # descriptive hashes that allows the Driver to build the filtering
           # component of the Directive.
           #
-          # If no filters are provided, it proceeds rather allows the caller to
-          # access nested methods in order to further define filters.
-          #
           # Select.where({ id: 1 })
           # => #<Select
           #       @user_filters=[
@@ -26,7 +23,39 @@ module Persistence
           #         }
           #       ]
           #     >
-          def where(**hash)
+          #
+          # Select.where({ id: 1 }).where.and({ email: 'a@email.com' })
+          # => #<Select
+          #       @user_filters=[
+          #         {
+          #           negate: false,
+          #           operand: :and,
+          #           filters: { id: 1 }
+          #         },
+          #         {
+          #           negate: false,
+          #           operand: :and,
+          #           filters: { email: 'a@email.com' }
+          #         }
+          #       ]
+          #     >
+          #
+          # Select.where_not({ id: 1 }).where_not.or({ email: 'a@email.com' })
+          # => #<Select
+          #       @user_filters=[
+          #         {
+          #           negate: true,
+          #           operand: :and,
+          #           filters: { id: 1 }
+          #         },
+          #         {
+          #           negate: true,
+          #           operand: :or,
+          #           filters: { email: 'a@email.com' }
+          #         }
+          #       ]
+          #     >
+          def where(hash = nil)
             @filter_state = { filtering: true, negate: false }
             handle_primary_filters(hash)
             self
@@ -45,7 +74,7 @@ module Persistence
           #         }
           #       ]
           #     >
-          def where_not(**hash)
+          def where_not(hash = nil)
             @filter_state = { filtering: true, negate: true }
             handle_primary_filters(hash)
             self
@@ -62,7 +91,7 @@ module Persistence
           private
 
           def handle_primary_filters(hash)
-            return if hash.empty?
+            return unless hash
 
             clear_filter_configuration
 
@@ -97,7 +126,9 @@ module Persistence
 
           def method_missing(method, *args, **kwargs, &block)
             if valid_method_missing?(method)
-              handle_secondary_filters(kwargs, method)
+              hash = args.first
+              raise(ArgumentError, "wrong number of arguments (given 0, expected 1)") unless hash
+              handle_secondary_filters(hash, method)
               self
             else
               super
