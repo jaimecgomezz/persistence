@@ -1,0 +1,32 @@
+activate Engine
+activate "Selection (Operation)"
+activate "Postgres (Driver)"
+activate StatementBuilder
+activate "Select (Clause)"
+activate "From (Clause)"
+activate "Where (Clause)"
+activate "Postgres (DB)"
+
+Engine->"Postgres (Driver)": driver.run(selection)
+"Postgres (Driver)"->"Postgres (Driver)": self.selection(selection)
+"Postgres (Driver)"->StatementBuilder: new(selection, [Select, From, Where])
+"Postgres (Driver)"<--StatementBuilder: builder
+"Postgres (Driver)"->StatementBuilder: builder.build
+StatementBuilder->"Select (Clause)": new(selection, {})
+StatementBuilder<--"Select (Clause)": clause
+StatementBuilder->"Select (Clause)": clause.build
+StatementBuilder<--"Select (Clause)": ("SELECT *", {})
+StatementBuilder->"From (Clause)": new(selection, {})
+StatementBuilder<--"From (Clause)": clause
+StatementBuilder->"From (Clause)": clause.build
+StatementBuilder<--"From (Clause)": ("FROM users", {})
+StatementBuilder->"Where (Clause)": new(selection, {})
+StatementBuilder<--"Where (Clause)": clause
+StatementBuilder->"Where (Clause)": clause.build
+StatementBuilder<--"Where (Clause)": ("WHERE id = :where_a_id", { where_a_id: 1 })
+"Postgres (Driver)"<--StatementBuilder: ("SELECT * FROM users WHERE id = :where_a_id", { where_a_id: 1 })
+"Postgres (Driver)"->"Postgres (DB)": db.fetch("SELECT * FROM users WHERE id = :where_a_id", { where_a_id: 1 })
+"Postgres (Driver)"<--"Postgres (DB)": [{ id: 1 }]
+"Postgres (Driver)"->"Selection (Operation)": selection.after([{ id: 1 }])
+"Postgres (Driver)"<--"Selection (Operation)": { id: 1 }
+Engine<--"Postgres (Driver)":  { id: 1 }

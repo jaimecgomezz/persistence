@@ -1,0 +1,64 @@
+activate Client
+activate "User (Entity)"
+activate "UserRepository (Repository)"
+activate "SetterTransformer (Transformer)"
+activate Engine
+activate "Selection (Operation)"
+activate "Filter (Capability)"
+activate "Postgres (Driver)"
+activate StatementBuilder
+activate "Select (Clause)"
+activate "From (Clause)"
+activate "Where (Clause)"
+activate "Postgres (DB)"
+
+Client->"Postgres (Driver)": new(db) 
+Client<--"Postgres (Driver)": driver 
+Client->Engine: new("users", driver)
+Client<--Engine: engine
+Client->"SetterTransformer (Transformer)": new(User)
+Client<--"SetterTransformer (Transformer)": transformer
+Client->"UserRepository (Repository)": new(engine, transformer)
+Client<--"UserRepository (Repository)": repository
+Client->"UserRepository (Repository)": repository.find_by_id(1)
+"UserRepository (Repository)"->Engine: engine.selection
+Engine->"Selection (Operation)": new("users")
+Engine<--"Selection (Operation)": selection
+"UserRepository (Repository)"<--Engine: engine
+"UserRepository (Repository)"->Engine: engine.where({ id: 1 })
+Engine->"Selection (Operation)": selection.where({ id: 1 })
+"Selection (Operation)"->"Filter (Capability)": self.where({ id: 1 })
+"Selection (Operation)"<--"Filter (Capability)": selection
+Engine<--"Selection (Operation)": selection
+"UserRepository (Repository)"<--Engine: engine
+"UserRepository (Repository)"->Engine: engine.perform
+Engine->"Postgres (Driver)": driver.run(selection)
+"Postgres (Driver)"->"Postgres (Driver)": self.selection(selection)
+"Postgres (Driver)"->StatementBuilder: new(selection, [Select, From, Where])
+"Postgres (Driver)"<--StatementBuilder: builder
+"Postgres (Driver)"->StatementBuilder: builder.build
+StatementBuilder->"Select (Clause)": new(selection, {})
+StatementBuilder<--"Select (Clause)": clause
+StatementBuilder->"Select (Clause)": clause.build
+StatementBuilder<--"Select (Clause)": ("SELECT *", {})
+StatementBuilder->"From (Clause)": new(selection, {})
+StatementBuilder<--"From (Clause)": clause
+StatementBuilder->"From (Clause)": clause.build
+StatementBuilder<--"From (Clause)": ("FROM users", {})
+StatementBuilder->"Where (Clause)": new(selection, {})
+StatementBuilder<--"Where (Clause)": clause
+StatementBuilder->"Where (Clause)": clause.build
+StatementBuilder<--"Where (Clause)": ("WHERE id = :where_a_id", { where_a_id: 1 })
+"Postgres (Driver)"<--StatementBuilder: ("SELECT * FROM users WHERE id = :where_a_id", { where_a_id: 1 })
+"Postgres (Driver)"->"Postgres (DB)": db.fetch("SELECT * FROM users WHERE id = :where_a_id", { where_a_id: 1 })
+"Postgres (Driver)"<--"Postgres (DB)": [{ id: 1 }]
+"Postgres (Driver)"->"Selection (Operation)": selection.after([{ id: 1 }])
+"Postgres (Driver)"<--"Selection (Operation)": { id: 1 }
+Engine<--"Postgres (Driver)":  { id: 1 }
+"UserRepository (Repository)"<--Engine: { id: 1 }
+"UserRepository (Repository)"->"SetterTransformer (Transformer)": transformer.one({ id: 1 })
+"SetterTransformer (Transformer)"->"User (Entity)": new
+"SetterTransformer (Transformer)"<--"User (Entity)": user
+"SetterTransformer (Transformer)"->"User (Entity)": user.id=(1)
+"UserRepository (Repository)"<--"SetterTransformer (Transformer)": "#User @id=1"
+Client<--"UserRepository (Repository)": "#User @id=1"
