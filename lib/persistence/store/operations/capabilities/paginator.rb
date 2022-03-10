@@ -50,7 +50,7 @@ module Persistence
             self
           end
 
-          def paginate(**config)
+          def paginate(config = {})
             @pagination = default_pagination.merge(config)
 
             pagination.each do |attr, n|
