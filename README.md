@@ -83,23 +83,23 @@ This is concept inspired both by the [Hanami](https://github.com/hanami/hanami) 
 
 High level sequence diagram that shows the execution flow of `#user_repository.find_by_id(1)`.
 
-![find-by-id-general](/home/thbrd/repos/jaimecgomezz/persistence/diagrams/find-by-id-general.svg)
+![find-by-id-general](diagrams/find-by-id-general.svg)
 
 #### Abstract
 
 Zoom into the `Abstraction` part of the [General](#general) diagram.
 
-![find-by-id-abstraction](/home/thbrd/repos/jaimecgomezz/persistence/diagrams/find-by-id-abstraction.png)
+![find-by-id-abstraction](diagrams/find-by-id-abstraction.png)
 
 #### Specialized
 
 Zoom into the `Specialized` part of the [General](#general) diagram, using the [Postgres Driver](https://github.com/jaimecgomezz/persistence/blob/master/lib/persistence/store/drivers/sequel/postgres.rb).
 
-![find-by-id-specialization-postgres](/home/thbrd/repos/jaimecgomezz/persistence/diagrams/find-by-id-specialization-postgres.svg)
+![find-by-id-specialization-postgres](diagrams/find-by-id-specialization-postgres.svg)
 
 Finally, a complete low level overview.
 
-![find-by-id-full](/home/thbrd/repos/jaimecgomezz/persistence/diagrams/find-by-id-full.svg)
+![find-by-id-full](diagrams/find-by-id-full.svg)
 
 ## Limitations
 
