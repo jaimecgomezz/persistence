@@ -28,6 +28,6 @@ module Persistence
   end
 end
 
-require_relative 'transformers/unit_transformer'
+require_relative 'transformers/identity_transformer'
 require_relative 'transformers/setter_transformer'
 require_relative 'transformers/initializer_transformer'

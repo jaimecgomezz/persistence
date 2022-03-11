@@ -31,7 +31,7 @@ The Engine is merely a proxy between the Repository and the many Operations avai
 
 An Operation is nothing more than the sum of its Capabilities. This can be understood quite literally and metaphorically.
 
-Lets say, for example, we want to query the database and get the User with ID 1. In that case, we'd use the [Select](https://github.com/jaimecgomezz/persistence/blob/master/lib/persistence/store/operations/select.rb) operation, who defines [Filter](https://github.com/jaimecgomezz/persistence/blob/master/lib/persistence/store/operations/capabilities/filter.rb) as one of its capabilities, exposing the `#where(filters)` method, which in turn allows us to `filter` our query.
+Lets say, for example, we want to query the database and get the User with ID 1. In that case, we'd use the [Select](lib/persistence/store/operations/select.rb) operation, who defines [Filter](lib/persistence/store/operations/capabilities/filter.rb) as one of its capabilities, exposing the `#where(filters)` method, which in turn allows us to `filter` our query.
 
 See where are we going with this? We can define any number of operations with any number of capabilities, extend and add brand new ones to power up even further what we can do!
 
@@ -39,7 +39,7 @@ See where are we going with this? We can define any number of operations with an
 
 By now you might get the grasp of what a Capability does, but here is it: It defines a **specific** behavior that an Operation will acquire when including it in its definition.
 
-Continuing with the example above, the [Filter](https://github.com/jaimecgomezz/persistence/blob/master/lib/persistence/store/operations/capabilities/filter.rb) Capability exposes methods that allow us to define filters for our Operation. As you might expect, the [Grouper](https://github.com/jaimecgomezz/persistence/blob/0322ac482f5dacc5525265f64d33b179e6336028/lib/persistence/store/operations/capabilities/grouper.rb) Capability allows us to define groupings for our Operation, so on and so forth.
+Continuing with the example above, the [Filter](lib/persistence/store/operations/capabilities/filter.rb) Capability exposes methods that allow us to define filters for our Operation. As you might expect, the [Grouper](lib/persistence/store/operations/capabilities/grouper.rb) Capability allows us to define groupings for our Operation, so on and so forth.
 
 It's absolutely important to understand that this decision was made consciously, following the [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single-responsibility_principle), making it atomic and testable.
 
@@ -49,7 +49,7 @@ The project is composed by two layers; the [Abstract](#abstract) and the [Specia
 
 T he Driver is responsible for transforming the abstract notion of an Operation into a concrete Directive that can be understood and executed by the DB.
 
-Following the previous example, say our DB is [Postgres](https://www.postgresql.org/). In this case, we'd use the [Postgres Driver](https://github.com/jaimecgomezz/persistence/blob/master/lib/persistence/store/drivers/sequel/postgres.rb) that knows how to transform the [Select](https://github.com/jaimecgomezz/persistence/blob/master/lib/persistence/store/operations/select.rb) Operation we've been using, into the concrete `SELECT * FROM users WHERE id = 1` SQL statement.
+Following the previous example, say our DB is [Postgres](https://www.postgresql.org/). In this case, we'd use the [Postgres Driver](lib/persistence/store/drivers/sequel/postgres.rb) that knows how to transform the [Select](lib/persistence/store/operations/select.rb) Operation we've been using, into the concrete `SELECT * FROM users WHERE id = 1` SQL statement.
 
 This is what I consider the main value proposition of the project. As long as a Driver for our DB exists, we should be able to work with it, while maintaining a homogeneous development experience.
 
@@ -65,7 +65,7 @@ For example, [Active Record](https://guides.rubyonrails.org/active_record_basics
 
 We proposed th Transformer as the responsible for this specific task. It follows, as mostly anything within the project really, the [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single-responsibility_principle), receiving results from the Operation and returning them in whichever recipient of form we want.
 
-Every Repository uses the [Unit Transformer](https://github.com/jaimecgomezz/persistence/blob/0322ac482f5dacc5525265f64d33b179e6336028/lib/persistence/transformers/unit_transformer.rb) by default, which simply receives and returns the Operation result. This is a decision inspired by the [identity](https://ramdajs.com/docs/#identity) method from [Ramda.js](https://ramdajs.com/) and the [Null Object Pattern](https://en.wikipedia.org/wiki/Null_object_pattern).
+Every Repository uses the [Unit Transformer](lib/persistence/transformers/identity_transformer.rb) by default, which simply receives and returns the Operation result. This is a decision inspired by the [identity](https://ramdajs.com/docs/#identity) method from [Ramda.js](https://ramdajs.com/) and the [Null Object Pattern](https://en.wikipedia.org/wiki/Null_object_pattern).
 
 ### Entity
 
@@ -91,7 +91,7 @@ Zoom into the `Abstraction` part of the [General](#general) diagram.
 
 #### Specialized
 
-Zoom into the `Specialized` part of the [General](#general) diagram, using the [Postgres Driver](https://github.com/jaimecgomezz/persistence/blob/master/lib/persistence/store/drivers/sequel/postgres.rb).
+Zoom into the `Specialized` part of the [General](#general) diagram, using the [Postgres Driver](lib/persistence/store/drivers/sequel/postgres.rb).
 
 ![find-by-id-specialization-postgres](diagrams/find-by-id-specialization-postgres.svg)
 

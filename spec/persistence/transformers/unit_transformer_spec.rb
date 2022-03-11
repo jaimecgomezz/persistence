@@ -2,7 +2,7 @@
 
 require_relative 'context'
 
-RSpec.describe Persistence::Transformers::UnitTransformer do
+RSpec.describe Persistence::Transformers::IdentityTransformer do
   let(:instance) { described_class.new }
 
   include_context 'transformer'

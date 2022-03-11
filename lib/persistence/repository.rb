@@ -18,7 +18,7 @@ module Persistence
 
     def initialize(engine, transformer = nil)
       @engine = engine
-      @transformer = transformer || Transformers::UnitTransformer.new
+      @transformer = transformer || Transformers::IdentityTransformer.new
     end
 
     def count

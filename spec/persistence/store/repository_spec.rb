@@ -18,7 +18,7 @@ RSpec.describe Persistence::Repository do
     end
 
     it 'uses the unit transformer by default' do
-      expect(repository.transformer).to be_a(Persistence::Transformers::UnitTransformer)
+      expect(repository.transformer).to be_a(Persistence::Transformers::IdentityTransformer)
     end
   end
 
