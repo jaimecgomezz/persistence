@@ -5,7 +5,7 @@ Abstract the persistence layer away from the code that really matters.
 
 When I first got introduced to ruby, it wasn't really to the language itself but rather, as Richard Feldman [calls it](https://youtu.be/QyJZzq0v7Z4?t=176), to its killer app, [Rails](https://rubyonrails.org/). I quickly fall in love with it, it was just so easy and quick to make anything happen, even more so, I absolutely loved [Active Record](https://guides.rubyonrails.org/active_record_basics.html), cause it felt so natural to query the database that most of the time I could almost chat with it.
 
-Unfortunately, as you progress both with your system and as a software engineer, you start to realize that level of abstraction comes with a cost; speed and code base obscurity. I remember once pulling the whole project trying to find a specific method that I wanted to know more about, unfortunately I got lost in an ocean of meta programming, so vast that the easiest path for me was to reinvent the wheel.
+Unfortunately, as you progress both with your system and with your software engineer career, you start to realize that that incredible level of abstraction comes with a cost; speed and code base obscurity. I remember once pulling the whole project trying to find a specific method that I wanted to know more about, unfortunately getting lost in an ocean of meta programming, so vast that the easiest path for me was to reinvent the wheel.
 
 Persistence offers an Active Record-like, but not really, experience, following design patterns that guarantee the testability and extendability of the project.
 
@@ -45,13 +45,11 @@ It's absolutely important to understand that this decision was made consciously,
 
 ### Driver
 
-The project is composed by two layers; the [Abstract](#abstract) and the [Specialized](#specialized) one. The former being composed by all the database agnostic components (Repository, Engine, Operation, Transformer and Entity), and the latter being composed by the  implementation details, the Driver and our DB.
+The project is composed by two layers; the [Abstract](#abstract) and the [Specialized](#specialized) one. The former being composed by all the database agnostic components (Repository, Engine, Operation, Transformer and Entity), and the latter being composed by the  implementation details, Driver and the concrete DB.
 
-So, the Driver is responsible for transforming the abstract notion of an Operation into a concrete Directive that can be understood and executed by the DB.
+T he Driver is responsible for transforming the abstract notion of an Operation into a concrete Directive that can be understood and executed by the DB.
 
-Following the previous example, say our DB is [Postgres](https://www.postgresql.org/). In this case, we'd use the [Postgres Driver](https://github.com/jaimecgomezz/persistence/blob/master/lib/persistence/store/drivers/sequel/postgres.rb) that will need to know how to transform the [Select](https://github.com/jaimecgomezz/persistence/blob/master/lib/persistence/store/operations/select.rb) Operation we've defined, into the concrete `SELECT * FROM users WHERE id = 1` SQL statement.
-
-Refer to the [Specialization](#specialization) diagram for now on.
+Following the previous example, say our DB is [Postgres](https://www.postgresql.org/). In this case, we'd use the [Postgres Driver](https://github.com/jaimecgomezz/persistence/blob/master/lib/persistence/store/drivers/sequel/postgres.rb) that knows how to transform the [Select](https://github.com/jaimecgomezz/persistence/blob/master/lib/persistence/store/operations/select.rb) Operation we've been using, into the concrete `SELECT * FROM users WHERE id = 1` SQL statement.
 
 This is what I consider the main value proposition of the project. As long as a Driver for our DB exists, we should be able to work with it, while maintaining a homogeneous development experience.
 
@@ -63,11 +61,11 @@ The concrete persistence mechanism of our preference, whatever that might be,  [
 
 Responsible for transforming the Operation results into the format expected by the Repository consumer.
 
-For example, [Active Record](https://guides.rubyonrails.org/active_record_basics.html) automatically transforms the results into [Models](https://guides.rubyonrails.org/active_record_basics.html#creating-active-record-models), so rather than having plain hashes, you get Class instances that expose not only attributes but also behavior.
+For example, [Active Record](https://guides.rubyonrails.org/active_record_basics.html) automatically transforms the results into [Models](https://guides.rubyonrails.org/active_record_basics.html#creating-active-record-models), so instead of having plain hashes, you get Class instances that expose not only attributes but also behavior.
 
-We'd like to have a similar experience, thus the Transformer concept arrived. It also follows, as mostly anything within the project really, the [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single-responsibility_principle). It receives the Operation result and returns them in whichever recipient we'd like.
+We proposed th Transformer as the responsible for this specific task. It follows, as mostly anything within the project really, the [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single-responsibility_principle), receiving results from the Operation and returning them in whichever recipient of form we want.
 
-Any Repository uses the [Unit Transformer](https://github.com/jaimecgomezz/persistence/blob/0322ac482f5dacc5525265f64d33b179e6336028/lib/persistence/transformers/unit_transformer.rb) by default, which simply receives and returns the Operation result. This is also a conscious decision, inspired by the [identity](https://ramdajs.com/docs/#identity) method from [Ramda.js](https://ramdajs.com/) and the [Null Object Pattern](https://en.wikipedia.org/wiki/Null_object_pattern).
+Every Repository uses the [Unit Transformer](https://github.com/jaimecgomezz/persistence/blob/0322ac482f5dacc5525265f64d33b179e6336028/lib/persistence/transformers/unit_transformer.rb) by default, which simply receives and returns the Operation result. This is a decision inspired by the [identity](https://ramdajs.com/docs/#identity) method from [Ramda.js](https://ramdajs.com/) and the [Null Object Pattern](https://en.wikipedia.org/wiki/Null_object_pattern).
 
 ### Entity
 
