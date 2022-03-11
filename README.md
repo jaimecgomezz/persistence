@@ -65,7 +65,7 @@ For example, [Active Record](https://guides.rubyonrails.org/active_record_basics
 
 We proposed th Transformer as the responsible for this specific task. It follows, as mostly anything within the project really, the [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single-responsibility_principle), receiving results from the Operation and returning them in whichever recipient of form we want.
 
-Every Repository uses the [Unit Transformer](lib/persistence/transformers/identity_transformer.rb) by default, which simply receives and returns the Operation result. This is a decision inspired by the [identity](https://ramdajs.com/docs/#identity) method from [Ramda.js](https://ramdajs.com/) and the [Null Object Pattern](https://en.wikipedia.org/wiki/Null_object_pattern).
+Every Repository uses the [Identity Transformer](lib/persistence/transformers/identity_transformer.rb) by default, which simply receives and returns the Operation result. This is a decision inspired by the [identity](https://ramdajs.com/docs/#identity) method from [Ramda.js](https://ramdajs.com/) and the [Null Object Pattern](https://en.wikipedia.org/wiki/Null_object_pattern).
 
 ### Entity
 
