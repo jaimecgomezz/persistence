@@ -3,21 +3,21 @@ Abstract the persistence layer away from the code that really matters.
 
 ## Motivation
 
-When I first got introduced to ruby, it wasn't really to the language itself but rather, as Richard Feldman [calls it](https://youtu.be/QyJZzq0v7Z4?t=176), to its killer app, [Rails](https://rubyonrails.org/). I quickly fall in love with it, it was incredibly easy and quick to make anything happen, even more so, I absolutely loved [Active Record](https://guides.rubyonrails.org/active_record_basics.html); it felt so natural to query the database that most of the time I was chatting with it.
+When I first got introduced to ruby, it wasn't really to the language itself but rather, as Richard Feldman [calls it](https://youtu.be/QyJZzq0v7Z4?t=176), to its killer app, [Rails](https://rubyonrails.org/). I quickly fall in love with it, as it was incredibly easy and quick to make anything happen, even more so, I absolutely loved [Active Record](https://guides.rubyonrails.org/active_record_basics.html); it felt so natural to query the database that most of the time I was chatting with it.
 
 Unfortunately, as you progress both with your application and with your software engineer career, you start to realize that that incredible level of abstraction comes with a cost; speed and code-base obscurity. I remember once pulling the entire project simply to find a specific method that I wanted to know more about, only to get lost in an ocean of meta programming, so vast and confusing that the easiest path for me was to reinvent the wheel.
 
-`persistence` offers an Active Record-like, but not really, experience, following design patterns that guarantee the testability and extendability of the project.
+`persistence` offers an Active-Record-like, but not really, experience, following design patterns that guarantee the testability and extendability of the project.
 
 Please see the [limitations](#limitations) of the project.
 
 ## Concepts
 
-We'll dive into `persistence`'s main concepts and their foundations by exploring one of the simplest and most intuitive queries available, finding a User by its ID. I'd suggest the reader to follow the [General diagram](diagrams/find-by-id-general.png) along with the reading.
+We'll dive into `persistence`'s foundations by exploring one of the simplest and most intuitive queries available, finding a User by its ID. I'd suggest the reader to follow the [General diagram](diagrams/find-by-id-general.png) along with the reading.
 
 ### Repository
 
-The Repository is an object that mediates between entities and the persistence layer. It confines persistence logic to a low level, and offers a standardized API to query the [Storage](#storage).
+The Repository is an object that mediates between the [Client](#client) and the persistence layer. It confines persistence logic to a low level, and offers a standardized API to query the [Storage](#storage).
 
 For simplicity sake, we'll assume that you have already defined the `user_repository` and that you expect the results of said repository to be [hashes](https://ruby-doc.org/core-3.1.1/Hash.html). What you would do is simply:
 
@@ -44,7 +44,7 @@ def find_by_id(id)
 end
 ```
 
-Although there are a couple of things to unpack here, we will only focus in the `engine.selection.where({ id: id })` section. See, if we were to `delete` a record with ID `1`, what we would expect to see is:
+Although there are a couple of things to unpack here, we will only focus in the `engine.selection.where({ id: id })` section. See, if we were to `delete` a record with ID `1`, what we would expect to see it's *almost* the same:
 
 ```ruby
 def delete_by_id(id)
@@ -52,13 +52,13 @@ def delete_by_id(id)
 end
 ```
 
-This should express the notion of the Engine being simply a gate keeper for all the operations available, allowing us to use, share and inject the Engine however we want, with the guarantee that the Operations will come along.
+This should communicate the notion of the Engine being simply a gate keeper for all the operations available, allowing us to use, share and inject the Engine however we want, with the guarantee that the Operations will come along.
 
 ### Operation
 
 An Operation is nothing more than the sum of its Capabilities. This can be understood quite literally and metaphorically.
 
-I know the definition above isn't enough to fully grasp what an Operation might be, that's why we decide to peak into the [Select](lib/persistence/store/operations/select.rb) operation we invoked earlier with `engine.select`. What we would found is this:
+I know the definition above isn't enough to fully grasp what an Operation might be, that's why we decide to peak into the [Select](lib/persistence/store/operations/select.rb) operation we invoked earlier with `engine.select`. What we would found is something like this:
 
 ```ruby
 module Operations
@@ -97,20 +97,20 @@ This decision was made consciously, following the [Single Responsibility Princip
 
 ### Driver
 
-What we have described until now are the `Abstract` layer components, the ones that should be able to work exactly the same, no matter what Storage we're dealing with. What is about to come is the `Specialized` layer, which is composed mainly of two components, the Driver and the Storage itself.
+What we have described until now are the `Abstract` layer components, the ones that should be able to work exactly the same, no matter what Storage we're dealing with. What is about to come is the `Specialized` layer, which is composed mainly of the Driver and the Storage itself.
 
-The Driver is probably the most important component of the project, in the sense that without it, no matter how simple or complex abstractions that we build on top are, we wouldn't be able to do anything useful with them.  Considering this, we can say that:
+The Driver is probably the most important component of the project, in the sense that without it, no matter how simple or complex abstractions we build on top, we wouldn't be able to do anything useful with them.  Considering this, we can say that:
 
-The Driver is responsible for transforming the abstract notion of an Operation into a concrete Directive that can be understood and then executed by our Storage.
+The Driver is responsible for transforming the abstract notion of an Operation into a concrete [Directive](#directive) that can be understood and then executed by our Storage.
 
-Following the previous example, say our Storage is [Postgres](https://www.postgresql.org/). In that case, we'd use the existing [Postgres Driver](lib/persistence/store/drivers/sequel/postgres.rb) that knows how to transform our [Select](lib/persistence/store/operations/select.rb) Operation into the a concrete `SQL` statement.
+Following the previous example, say our Storage is [Postgres](https://www.postgresql.org/). In that case, we'd use the existing [Postgres Driver](lib/persistence/store/drivers/sequel/postgres.rb) that knows how to transform our `Select` Operation into the a concrete `SQL` statement.
 
 ```ruby
 > postgres_driver.build(select_operation)
 => ["SELECT * FROM users WHERE id = :where_a_id", { where_a_id: 1 }]
 ```
 
-The above example uses the `#build` method that every Driver is expected to implement. Its purpose is to allow the user to debug the Directive that the driver would run in a common execution. But, what would actually happen is something like this:
+The above example uses the `#build` method that every Driver is expected to implement. Its purpose is to allow the user to debug the Directive that the driver would run in a common execution. But, what would normally happen is something like this:
 
 ```ruby
 > postgres_driver.run(select_operation)
@@ -123,6 +123,10 @@ All this is what I consider the main value proposition of the project; as long a
 
 The concrete persistence mechanism of our preference, whatever that might be,  [Postgres](https://www.postgresql.org/), [Elasticsearch](https://www.elastic.co/elasticsearch/), [Redis](https://redis.io/), etc.
 
+#### Directive
+
+The instructions that our Storage understands, for example, Postgres' directives are SQL statements.
+
 ### Transformer
 
 Remember the snippet of code we inspect in the [Engine](#engine) section?
@@ -133,9 +137,9 @@ def find_by_id(id)
 end
 ```
 
-We decide to ignore the `transformer.one` part since it wasn't important up until that moment, but now is time to take a look at it:
+We decided to ignore the `transformer.one` part since it wasn't important up until that moment, but now is time to take a look at it:
 
-The Transformer is responsible for consuming the Operation results and returning them in the format, recipient or whatever form the Client expects them. They expose only 2 methods, `#one` and `#many`, each intended to be used when a single result or a list of multiple results is expected, respectively.
+The Transformer is responsible for consuming the Operation results and returning them in the format, recipient or whatever form the Client expects them to be. They expose only 2 methods, `#one` and `#many`, each intended to be used when a single result or a list of multiple results are expected, respectively.
 
 For example, [Active Record](https://guides.rubyonrails.org/active_record_basics.html) automatically transforms the Storage results into [Models](https://guides.rubyonrails.org/active_record_basics.html#creating-active-record-models), so instead of receiving plain hashes when querying the Storage, you get class instances.
 
@@ -145,7 +149,7 @@ Following our example, we said that we expected our results to be plain hashes, 
 
 Finally, an *entity* is an object defined not by its attributes, but its [identity](https://en.wikipedia.org/wiki/Identity_(object-oriented_programming)). It deals with one and only one responsibility that is pertinent to the domain of the application, without caring about details such as persistence or validations.
 
-Returning to our example, if we were to expect our results in an Active-Record-like fashion, what we'd have might be:
+Returning to our example, if we were to expect our results in an Active-Record-like fashion, what we'd have could be:
 
 ```ruby
 class User
@@ -161,6 +165,10 @@ setter_transformer = SetterTransformer.new(User)
 The [Setter Transformer](lib/persistence/transformers/identity_transformer.rb) is one of the Transformers already available. It consume a class at its initialization, and then, when either the `#one` or the `#many` methods are invoked, it transforms the results into an instance or a list of instances of the class provided, with all the attributes already in place.
 
 This is concept inspired by the [Domain Driven Design](https://en.wikipedia.org/wiki/Domain-driven_design#Building_blocks).
+
+### Client
+
+You, while you're testing, and your application the rest of the time.
 
 ## Limitations
 
