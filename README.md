@@ -39,16 +39,20 @@ The Engine is merely a proxy between the Repository and the many Operations avai
 Following the example above, if we ever decide to uncover the secrets being hidden by the `user_repository`, we'll be soon to find that its implementation is really simple:
 
 ```ruby
-def find_by_id(id)
-    identity_transformer.one(engine.select.where({ id: id }))
+class Repository
+    def find_by_id(id)
+        identity_transformer.one(engine.select.where({ id: id }))
+    end
 end
 ```
 
 Although there are a couple of things to unpack here, we will only focus in the `engine.selection.where({ id: id })` section. See, if we were to `delete` a record with ID `1`, what we would expect to see it's *almost* the same:
 
 ```ruby
-def delete_by_id(id)
-    identity_transformer.one(engine.delete.where({ id: id }))
+class Repository
+    def delete_by_id(id)
+        identity_transformer.one(engine.delete.where({ id: id }))
+    end
 end
 ```
 
