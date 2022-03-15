@@ -1,5 +1,6 @@
 require 'simplecov'
 require 'sequel'
+require 'ostruct'
 
 require_relative '../lib/persistence'
 require_relative 'support/utils'
