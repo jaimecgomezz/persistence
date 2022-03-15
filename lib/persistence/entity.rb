@@ -42,8 +42,6 @@ module Persistence
       attr_reader :schema
     end
 
-    # @since 0.7.0
-    # @api private
     def self.inherited(klass)
       klass.class_eval do
         @schema = Schema.new
