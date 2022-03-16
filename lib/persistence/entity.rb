@@ -102,7 +102,7 @@ module Persistence
     #
     # @return [Hash] the result of serialization
     def to_h
-      Hanami::Utils::Hash.deep_dup(attributes)
+      Persistence::Utils::Hash.deep_dup(attributes)
     end
 
     alias_method :to_hash, :to_h

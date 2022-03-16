@@ -19,5 +19,4 @@ end
 
 group :production do
   gem 'rom'
-  gem 'hanami-utils'
 end

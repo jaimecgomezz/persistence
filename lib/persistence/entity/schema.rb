@@ -45,7 +45,7 @@ module Persistence
           if attributes.nil?
             {}
           else
-            Hanami::Utils::Hash.deep_symbolize(attributes.to_hash.dup)
+            Persistence::Utils::Hash.deep_symbolize(attributes.to_hash.dup)
           end
         end
 
@@ -131,8 +131,6 @@ module Persistence
         rescue Dry::Types::SchemaError => exception
           raise TypeError, exception.message
         rescue Dry::Types::MissingKeyError, Dry::Types::UnknownKeysError => exception
-          require 'pry'
-          binding.pry
           raise ArgumentError, exception.message
         end
 
@@ -170,7 +168,7 @@ module Persistence
       #
       # @raise [TypeError] if the process fails
       def call(attributes)
-        Hanami::Utils::Hash.deep_symbolize(schema.call(attributes))
+        Persistence::Utils::Hash.deep_symbolize(schema.call(attributes))
       end
 
       alias_method :[], :call
